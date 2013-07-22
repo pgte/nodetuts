@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Node Tuts</title>
+    <language>en</language>
+    <itunes:author>Pedro Teixeira</itunes:author>
+    <itunes:summary>Node.js Free screencast tutorials</itunes:summary>
+    <itunes:keywords>Node.js, screencast, tutorials, javascript, programming</itunes:keywords>
+    <link>http://nodetuts.com</link>
+    <itunes:owner>
+      <itunes:name>Pedro Teixeira</itunes:name>
+      <itunes:email>pedro.teixeira@gmail.com</itunes:email>
+    </itunes:owner>
+    <itunes:image href="http://nodetuts.com/images/nodetuts_logo.png"/>
+    <itunes:category text="Technology"/>
+    <item>
+      <title>Episode 31</title>
+      <itunes:subtitle>Konphyg - Cascading Configuration Files</itunes:subtitle>
+      <itunes:author>Pedro Teixeira</itunes:author>
+      <itunes:summary>In this episode Pedro shows you the power and simplicity of Konphyg to parse and merge configuration files for different environments.</itunes:summary>
+      <description>In this episode Pedro shows you the power and simplicity of Konphyg to parse and merge configuration files for different environments.</description>
+      <pubDate>Fri, 09 Dec 2011 20:19:02 +0000</pubDate>
+      <link>http://nodetuts.com/tutorials/31-konphyg-cascading-configuration-files</link>
+      <enclosure type="video/x-m4v" length="154417712" url="http://nodetuts.s3.amazonaws.com/31.m4v"/>
+      <guid>http://nodetuts.com/tutorials/31-konphyg-cascading-configuration-files</guid>
+      <itunes:keywords>Node.js, screencast, tutorials, javascript, programming</itunes:keywords>
+    </item>
+    <item>
+      <title>Episode 30</title>
+      <itunes:subtitle>CouchDB and Nano</itunes:subtitle>
+      <itunes:author>Pedro Teixeira</itunes:author>
+      <itunes:summary>Pedro shows you how to interact with a CouchDB database using Nano. For documents and piping attachments.</itunes:summary>
+      <description>Pedro shows you how to interact with a CouchDB database using Nano. For documents and piping attachments.</description>
+      <pubDate>Tue, 06 Dec 2011 16:05:39 +0000</pubDate>
+      <link>http://nodetuts.com/tutorials/30-couchdb-and-nano</link>
+      <enclosure type="video/x-m4v" length="343116232" url="http://nodetuts.s3.amazonaws.com/30.m4v"/>
+      <guid>http://nodetuts.com/tutorials/30-couchdb-and-nano</guid>
+      <itunes:keywords>Node.js, screencast, tutorials, javascript, programming</itunes:keywords>
+    </item>
+    <item>
+      <title>Episode 29</title>
+      <itunes:subtitle>Deploying to Nodejitsu</itunes:subtitle>
+      <itunes:author>Pedro Teixeira</itunes:author>
+      <itunes:summary>In this episode Pedro shows how you can deploy your Node app to the Nodejitsu cloud.</itunes:summary>
+      <description>In this episode Pedro shows how you can deploy your Node app to the Nodejitsu cloud.</description>
+      <pubDate>Fri, 04 Nov 2011 17:50:36 +0000</pubDate>
+      <link>http://nodetuts.com/tutorials/29-deploying-to-nodejitsu</link>
+      <enclosure type="video/x-m4v" length="157273264" url="http://nodetuts.s3.amazonaws.com/29.m4v"/>
+      <guid>http://nodetuts.com/tutorials/29-deploying-to-nodejitsu</guid>
+      <itunes:keywords>Node.js, screencast, tutorials, javascript, programming</itunes:keywords>
+    </item>
+    <item>
+      <title>Episode 28</title>
+      <itunes:subtitle>Javascript classes, prototypes and closures</itunes:subtitle>
+      <itunes:author>Pedro Teixeira</itunes:author>
+      <itunes:summary>In this episode Pedro digs into Javascript prototypical chaining, pseudo-classes and closures.</itunes:summary>
+      <description>In this episode Pedro digs into Javascript prototypical chaining, pseudo-classes and closures.</description>
+      <pubDate>Mon, 26 Sep 2011 11:54:57 +0000</pubDate>
+      <link>http://nodetuts.com/tutorials/28-javascript-classes-prototypes-and-closures</link>
+      <enclosure type="video/x-m4v" length="286841870" url="http://nodetuts.s3.amazonaws.com/28.m4v"/>
+      <guid>http://nodetuts.com/tutorials/28-javascript-classes-prototypes-and-closures</guid>
+      <itunes:keywords>Node.js, screencast, tutorials, javascript, programming</itunes:keywords>
+    </item>
+    <item>
+      <title>Episode 27</title>
+      <itunes:subtitle>Kue Jobs</itunes:subtitle>
+      <itunes:author>Pedro Teixeira</itunes:author>
+      <itunes:summary>On this episode Pedro shows you how to use to manage, produce and consume a job queue using Node.js and Kue.</itunes:summary>
+      <description>On this episode Pedro shows you how to use to manage, produce and consume a job queue using Node.js and Kue.</description>
+      <pubDate>Wed, 27 Jul 2011 16:35:10 +0000</pubDate>
+      <link>http://nodetuts.com/tutorials/27-kue-jobs</link>
+      <enclosure type="video/x-m4v" length="53890660" url="http://nodetuts.s3.amazonaws.com/27.m4v"/>
+      <guid>http://nodetuts.com/tutorials/27-kue-jobs</guid>
+      <itunes:keywords>Node.js, screencast, tutorials, javascript, programming</itunes:keywords>
+    </item>
+    <item>
+      <title>Episode 26</title>
+      <itunes:subtitle>Starting with everyauth</itunes:subtitle>
+      <itunes:author>Pedro Teixeira</itunes:author>
+      <itunes:summary>On this episode Pedro starts using everyauth.
+Also using couchdb and cradle.
+Code here: https://github.com/pgte/nodetuts_26</itunes:summary>
+      <description>On this episode Pedro starts using everyauth.
+Also using couchdb and cradle.
+Code here: https://github.com/pgte/nodetuts_26</description>
+      <pubDate>Sun, 17 Jul 2011 22:09:24 +0000</pubDate>
+      <link>http://nodetuts.com/tutorials/26-starting-with-everyauth</link>
+      <enclosure type="video/x-m4v" length="61462568" url="http://nodetuts.s3.amazonaws.com/26.m4v"/>
+      <guid>http://nodetuts.com/tutorials/26-starting-with-everyauth</guid>
+      <itunes:keywords>Node.js, screencast, tutorials, javascript, programming</itunes:keywords>
+    </item>
+    <item>
+      <title>Episode 25</title>
+      <itunes:subtitle>Nginx and Node.js</itunes:subtitle>
+      <itunes:author>Pedro Teixeira</itunes:author>
+      <itunes:summary>On this episode Pedro shows you how you can serve your Node.js app using Nginx.</itunes:summary>
+      <description>On this episode Pedro shows you how you can serve your Node.js app using Nginx.</description>
+      <pubDate>Tue, 28 Jun 2011 22:17:19 +0000</pubDate>
+      <link>http://nodetuts.com/tutorials/25-nginx-and-nodejs</link>
+      <enclosure type="video/x-m4v" length="42062524" url="http://nodetuts.s3.amazonaws.com/25.m4v"/>
+      <guid>http://nodetuts.com/tutorials/25-nginx-and-nodejs</guid>
+      <itunes:keywords>Node.js, screencast, tutorials, javascript, programming</itunes:keywords>
+    </item>
+    <item>
+      <title>Episode 24</title>
+      <itunes:subtitle>Benchmarking your TCP server with Node.js</itunes:subtitle>
+      <itunes:author>Pedro Teixeira</itunes:author>
+      <itunes:summary>On this episode Pedro shows you how you can collect some statistics on your TCP-based server using Node.js</itunes:summary>
+      <description>On this episode Pedro shows you how you can collect some statistics on your TCP-based server using Node.js</description>
+      <pubDate>Fri, 24 Jun 2011 15:24:22 +0000</pubDate>
+      <link>http://nodetuts.com/tutorials/24-benchmarking-your-tcp-server-with-nodejs</link>
+      <enclosure type="video/x-m4v" length="48093517" url="http://nodetuts.s3.amazonaws.com/24.m4v"/>
+      <guid>http://nodetuts.com/tutorials/24-benchmarking-your-tcp-server-with-nodejs</guid>
+      <itunes:keywords>Node.js, screencast, tutorials, javascript, programming</itunes:keywords>
+    </item>
+    <item>
+      <title>Episode 23</title>
+      <itunes:subtitle>Express resources</itunes:subtitle>
+      <itunes:author>Pedro Teixeira</itunes:author>
+      <itunes:summary>On this episode Pedro shows how you can easily modularize your express app into resources and some other niceties like auto-loading and content negotiation.</itunes:summary>
+      <description>On this episode Pedro shows how you can easily modularize your express app into resources and some other niceties like auto-loading and content negotiation.</description>
+      <pubDate>Sun, 15 May 2011 21:07:39 +0000</pubDate>
+      <link>http://nodetuts.com/tutorials/23-express-resources</link>
+      <enclosure type="video/x-m4v" length="59904037" url="http://nodetuts.s3.amazonaws.com/23.m4v"/>
+      <guid>http://nodetuts.com/tutorials/23-express-resources</guid>
+      <itunes:keywords>Node.js, screencast, tutorials, javascript, programming</itunes:keywords>
+    </item>
+    <item>
+      <title>Episode 22</title>
+      <itunes:subtitle>Freezing and bundling your dependencies with node 0.4</itunes:subtitle>
+      <itunes:author>Pedro Teixeira</itunes:author>
+      <itunes:summary>On this episode Pedro explains you how you can survive dependency hell and freeze and bundle your app dependencies using node_modules and npm bundle on node v0.4.0 and greater.</itunes:summary>
+      <description>On this episode Pedro explains you how you can survive dependency hell and freeze and bundle your app dependencies using node_modules and npm bundle on node v0.4.0 and greater.</description>
+      <pubDate>Fri, 01 Apr 2011 17:47:54 +0000</pubDate>
+      <link>http://nodetuts.com/tutorials/22-freezing-and-bundling-your-dependencies-with-node-04</link>
+      <enclosure type="video/x-m4v" length="28521152" url="http://nodetuts.s3.amazonaws.com/22.m4v"/>
+      <guid>http://nodetuts.com/tutorials/22-freezing-and-bundling-your-dependencies-with-node-04</guid>
+      <itunes:keywords>Node.js, screencast, tutorials, javascript, programming</itunes:keywords>
+    </item>
+    <item>
+      <title>Episode 21</title>
+      <itunes:subtitle>Node.js, MongoDB and Mongoose 1.1</itunes:subtitle>
+      <itunes:author>Pedro Teixeira</itunes:author>
+      <itunes:summary>On this episode Pedro Teixeira explores the awsomeness of the new Mongoose API.</itunes:summary>
+      <description>On this episode Pedro Teixeira explores the awsomeness of the new Mongoose API.</description>
+      <pubDate>Wed, 02 Mar 2011 15:56:32 +0000</pubDate>
+      <link>http://nodetuts.com/tutorials/21-nodejs-mongodb-and-mongoose-11</link>
+      <enclosure type="video/x-m4v" length="103062136" url="http://nodetuts.s3.amazonaws.com/21.m4v"/>
+      <guid>http://nodetuts.com/tutorials/21-nodejs-mongodb-and-mongoose-11</guid>
+      <itunes:keywords>Node.js, screencast, tutorials, javascript, programming</itunes:keywords>
+    </item>
+    <item>
+      <title>Episode 20</title>
+      <itunes:subtitle>Unit tests and TDD in node.js</itunes:subtitle>
+      <itunes:author>Pedro Teixeira</itunes:author>
+      <itunes:summary>On this episode Pedro Teixeira shows you how you can use should.js and expresso to unit test your app.</itunes:summary>
+      <description>On this episode Pedro Teixeira shows you how you can use should.js and expresso to unit test your app.</description>
+      <pubDate>Thu, 10 Feb 2011 15:10:54 +0000</pubDate>
+      <link>http://nodetuts.com/tutorials/20-unit-tests-and-tdd-in-nodejs</link>
+      <enclosure type="video/x-m4v" length="61538447" url="http://nodetuts.s3.amazonaws.com/20.m4v"/>
+      <guid>http://nodetuts.com/tutorials/20-unit-tests-and-tdd-in-nodejs</guid>
+      <itunes:keywords>Node.js, screencast, tutorials, javascript, programming</itunes:keywords>
+    </item>
+    <item>
+      <title>Episode 19</title>
+      <itunes:subtitle>Asynchronous Iteration Patterns</itunes:subtitle>
+      <itunes:author>Pedro Teixeira</itunes:author>
+      <itunes:summary>On this episode Pedro Teixeira digs into javascript patterns for iterating over asynchronous functions.</itunes:summary>
+      <description>On this episode Pedro Teixeira digs into javascript patterns for iterating over asynchronous functions.</description>
+      <pubDate>Thu, 03 Feb 2011 23:54:22 +0000</pubDate>
+      <link>http://nodetuts.com/tutorials/19-asynchronous-iteration-patterns</link>
+      <enclosure type="video/x-m4v" length="53231083" url="http://nodetuts.s3.amazonaws.com/19.m4v"/>
+      <guid>http://nodetuts.com/tutorials/19-asynchronous-iteration-patterns</guid>
+      <itunes:keywords>Node.js, screencast, tutorials, javascript, programming</itunes:keywords>
+    </item>
+    <item>
+      <title>Episode 18</title>
+      <itunes:subtitle>MongoDB and Mongoose</itunes:subtitle>
+      <itunes:author>Pedro Teixeira</itunes:author>
+      <itunes:summary>On this episode Pedro Teixeira learns how to use MongoDB inside node.js using the Mongoose ODM.\r\n\r\nNote: I store clear-text passwords on this tutorial as an example. It's just to simplify. In real applications you should store a (salted) hash.</itunes:summary>
+      <description>On this episode Pedro Teixeira learns how to use MongoDB inside node.js using the Mongoose ODM.\r\n\r\nNote: I store clear-text passwords on this tutorial as an example. It's just to simplify. In real applications you should store a (salted) hash.</description>
+      <pubDate>Thu, 03 Feb 2011 23:53:49 +0000</pubDate>
+      <link>http://nodetuts.com/tutorials/18-mongodb-and-mongoose</link>
+      <enclosure type="video/mp4" length="70074746" url="http://nodetuts.s3.amazonaws.com/18.mp4"/>
+      <guid>http://nodetuts.com/tutorials/18-mongodb-and-mongoose</guid>
+      <itunes:keywords>Node.js, screencast, tutorials, javascript, programming</itunes:keywords>
+    </item>
+    <item>
+      <title>Episode 17</title>
+      <itunes:subtitle>Building node.js modules</itunes:subtitle>
+      <itunes:author>Pedro Teixeira</itunes:author>
+      <itunes:summary>On this episode Pedro Teixeira explains you how you can build node.js modules.</itunes:summary>
+      <description>On this episode Pedro Teixeira explains you how you can build node.js modules.</description>
+      <pubDate>Thu, 03 Feb 2011 23:53:17 +0000</pubDate>
+      <link>http://nodetuts.com/tutorials/17-building-nodejs-modules</link>
+      <enclosure type="video/mp4" length="55742220" url="http://nodetuts.s3.amazonaws.com/17.mp4"/>
+      <guid>http://nodetuts.com/tutorials/17-building-nodejs-modules</guid>
+      <itunes:keywords>Node.js, screencast, tutorials, javascript, programming</itunes:keywords>
+    </item>
+    <item>
+      <title>Episode 16</title>
+      <itunes:subtitle>Introduction to Coffeescript and Node.js</itunes:subtitle>
+      <itunes:author>Pedro Teixeira</itunes:author>
+      <itunes:summary>On this episode Pedro Teixeira shares his explorations into Coffeescript on Node.js.</itunes:summary>
+      <description>On this episode Pedro Teixeira shares his explorations into Coffeescript on Node.js.</description>
+      <pubDate>Thu, 03 Feb 2011 23:52:36 +0000</pubDate>
+      <link>http://nodetuts.com/tutorials/16-introduction-to-coffeescript-and-nodejs</link>
+      <enclosure type="video/x-m4v" length="46412463" url="http://nodetuts.s3.amazonaws.com/16.m4v"/>
+      <guid>http://nodetuts.com/tutorials/16-introduction-to-coffeescript-and-nodejs</guid>
+      <itunes:keywords>Node.js, screencast, tutorials, javascript, programming</itunes:keywords>
+    </item>
+    <item>
+      <title>Episode 15</title>
+      <itunes:subtitle>Deploying to no.de</itunes:subtitle>
+      <itunes:author>Pedro Teixeira</itunes:author>
+      <itunes:summary>On this episode Pedro Teixeira shows how you can deploy to Joyent no.de node.js hosting service.</itunes:summary>
+      <description>On this episode Pedro Teixeira shows how you can deploy to Joyent no.de node.js hosting service.</description>
+      <pubDate>Thu, 03 Feb 2011 23:52:23 +0000</pubDate>
+      <link>http://nodetuts.com/tutorials/15-deploying-to-node</link>
+      <enclosure type="video/mp4" length="43521773" url="http://nodetuts.s3.amazonaws.com/15.mp4"/>
+      <guid>http://nodetuts.com/tutorials/15-deploying-to-node</guid>
+      <itunes:keywords>Node.js, screencast, tutorials, javascript, programming</itunes:keywords>
+    </item>
+    <item>
+      <title>Episode 14</title>
+      <itunes:subtitle>Some node.js tools</itunes:subtitle>
+      <itunes:author>Pedro Teixeira</itunes:author>
+      <itunes:summary>On this episode Pedro Teixeira covers some node.js tools he uses like Nodemon, Spark2, Fugue and Node-inspector.</itunes:summary>
+      <description>On this episode Pedro Teixeira covers some node.js tools he uses like Nodemon, Spark2, Fugue and Node-inspector.</description>
+      <pubDate>Thu, 03 Feb 2011 23:52:07 +0000</pubDate>
+      <link>http://nodetuts.com/tutorials/14-some-nodejs-tools</link>
+      <enclosure type="video/mp4" length="65308681" url="http://nodetuts.s3.amazonaws.com/14.mp4"/>
+      <guid>http://nodetuts.com/tutorials/14-some-nodejs-tools</guid>
+      <itunes:keywords>Node.js, screencast, tutorials, javascript, programming</itunes:keywords>
+    </item>
+    <item>
+      <title>Episode 13</title>
+      <itunes:subtitle>Authentication in Express - Sessions and Route middleware</itunes:subtitle>
+      <itunes:author>Pedro Teixeira</itunes:author>
+      <itunes:summary>On this episode Pedro Teixeira shows you how to use Express route middleware and Express sessions to handle authentication on your node.js Express app.</itunes:summary>
+      <description>On this episode Pedro Teixeira shows you how to use Express route middleware and Express sessions to handle authentication on your node.js Express app.</description>
+      <pubDate>Thu, 03 Feb 2011 23:51:39 +0000</pubDate>
+      <link>http://nodetuts.com/tutorials/13-authentication-in-express-sessions-and-route-middleware</link>
+      <enclosure type="video/mp4" length="67787225" url="http://nodetuts.s3.amazonaws.com/13.mp4"/>
+      <guid>http://nodetuts.com/tutorials/13-authentication-in-express-sessions-and-route-middleware</guid>
+      <itunes:keywords>Node.js, screencast, tutorials, javascript, programming</itunes:keywords>
+    </item>
+    <item>
+      <title>Episode 12</title>
+      <itunes:subtitle>File uploads using node.js and express</itunes:subtitle>
+      <itunes:author>Pedro Teixeira</itunes:author>
+      <itunes:summary>After recovering from a sore throat, Pedro Teixeira explains how you can handle file uploads using node.js and express.\r\n\r\nResources:\r\n\r\nSource code:\r\nhttps://gist.github.com/727178#file_app.js\r\n\r\nMultipart:\r\nhttps://github.com/isaacs/multipart-js</itunes:summary>
+      <description>After recovering from a sore throat, Pedro Teixeira explains how you can handle file uploads using node.js and express.\r\n\r\nResources:\r\n\r\nSource code:\r\nhttps://gist.github.com/727178#file_app.js\r\n\r\nMultipart:\r\nhttps://github.com/isaacs/multipart-js</description>
+      <pubDate>Thu, 03 Feb 2011 23:51:20 +0000</pubDate>
+      <link>http://nodetuts.com/tutorials/12-file-uploads-using-nodejs-and-express</link>
+      <enclosure type="video/mp4" length="74219815" url="http://nodetuts.s3.amazonaws.com/12.mp4"/>
+      <guid>http://nodetuts.com/tutorials/12-file-uploads-using-nodejs-and-express</guid>
+      <itunes:keywords>Node.js, screencast, tutorials, javascript, programming</itunes:keywords>
+    </item>
+    <item>
+      <title>Episode 11</title>
+      <itunes:subtitle>Express part III - RESTful forms</itunes:subtitle>
+      <itunes:author>Pedro Teixeira</itunes:author>
+      <itunes:summary>On this episode Pedro Teixeira resists his sore throat and heroically shows how you can use forms in Express in a RESTful way.</itunes:summary>
+      <description>On this episode Pedro Teixeira resists his sore throat and heroically shows how you can use forms in Express in a RESTful way.</description>
+      <pubDate>Thu, 03 Feb 2011 23:50:49 +0000</pubDate>
+      <link>http://nodetuts.com/tutorials/11-express-part-iii-restful-forms</link>
+      <enclosure type="video/mp4" length="84329906" url="http://nodetuts.s3.amazonaws.com/11.mp4"/>
+      <guid>http://nodetuts.com/tutorials/11-express-part-iii-restful-forms</guid>
+      <itunes:keywords>Node.js, screencast, tutorials, javascript, programming</itunes:keywords>
+    </item>
+    <item>
+      <title>Episode 10</title>
+      <itunes:subtitle>Express part II - static files, partials and locals</itunes:subtitle>
+      <itunes:author>Pedro Teixeira</itunes:author>
+      <itunes:summary>On this episode Pedro Teixeira shows you how to serve static files in your express apps, how to render partials and pass variables into your views.</itunes:summary>
+      <description>On this episode Pedro Teixeira shows you how to serve static files in your express apps, how to render partials and pass variables into your views.</description>
+      <pubDate>Thu, 03 Feb 2011 23:50:31 +0000</pubDate>
+      <link>http://nodetuts.com/tutorials/10-express-part-ii-static-files-partials-and-locals</link>
+      <enclosure type="video/mp4" length="66284181" url="http://nodetuts.s3.amazonaws.com/10.mp4"/>
+      <guid>http://nodetuts.com/tutorials/10-express-part-ii-static-files-partials-and-locals</guid>
+      <itunes:keywords>Node.js, screencast, tutorials, javascript, programming</itunes:keywords>
+    </item>
+    <item>
+      <title>Episode 9</title>
+      <itunes:subtitle>Express</itunes:subtitle>
+      <itunes:author>Pedro Teixeira</itunes:author>
+      <itunes:summary>On this episode Pedro Teixeira shows you the Express web development framework, how to bootstrap your app, how integrate middleware into it and how to render some jade views.\r\n\r\nSource code: https://gist.github.com/702084\r\n\r\nReferences:\r\n\r\nhttp://expressjs.com\r\nhttp://jade-lang.com</itunes:summary>
+      <description>On this episode Pedro Teixeira shows you the Express web development framework, how to bootstrap your app, how integrate middleware into it and how to render some jade views.\r\n\r\nSource code: https://gist.github.com/702084\r\n\r\nReferences:\r\n\r\nhttp://expressjs.com\r\nhttp://jade-lang.com</description>
+      <pubDate>Thu, 03 Feb 2011 23:50:17 +0000</pubDate>
+      <link>http://nodetuts.com/tutorials/9-express</link>
+      <enclosure type="video/mp4" length="46716023" url="http://nodetuts.s3.amazonaws.com/9.mp4"/>
+      <guid>http://nodetuts.com/tutorials/9-express</guid>
+      <itunes:keywords>Node.js, screencast, tutorials, javascript, programming</itunes:keywords>
+    </item>
+    <item>
+      <title>Episode 8</title>
+      <itunes:subtitle>Connect</itunes:subtitle>
+      <itunes:author>Pedro Teixeira</itunes:author>
+      <itunes:summary>On this episode Pedro Teixeira shows you how to equip your node.js http servers with middleware modules and how to build them using connect.</itunes:summary>
+      <description>On this episode Pedro Teixeira shows you how to equip your node.js http servers with middleware modules and how to build them using connect.</description>
+      <pubDate>Thu, 03 Feb 2011 23:50:06 +0000</pubDate>
+      <link>http://nodetuts.com/tutorials/8-connect</link>
+      <enclosure type="video/mp4" length="46078673" url="http://nodetuts.s3.amazonaws.com/8.mp4"/>
+      <guid>http://nodetuts.com/tutorials/8-connect</guid>
+      <itunes:keywords>Node.js, screencast, tutorials, javascript, programming</itunes:keywords>
+    </item>
+    <item>
+      <title>Episode 7</title>
+      <itunes:subtitle>Embracing all with Socket.io</itunes:subtitle>
+      <itunes:author>Pedro Teixeira</itunes:author>
+      <itunes:summary>On this episode Pedro Teixeira shows you how to implement a simple web-based chat server using Socke.io to achieve maximum browser interoperability.\r\n\r\nSource code: https://gist.github.com/671318</itunes:summary>
+      <description>On this episode Pedro Teixeira shows you how to implement a simple web-based chat server using Socke.io to achieve maximum browser interoperability.\r\n\r\nSource code: https://gist.github.com/671318</description>
+      <pubDate>Thu, 03 Feb 2011 23:49:46 +0000</pubDate>
+      <link>http://nodetuts.com/tutorials/7-embracing-all-with-socketio</link>
+      <enclosure type="video/mp4" length="37861287" url="http://nodetuts.s3.amazonaws.com/7.mp4"/>
+      <guid>http://nodetuts.com/tutorials/7-embracing-all-with-socketio</guid>
+      <itunes:keywords>Node.js, screencast, tutorials, javascript, programming</itunes:keywords>
+    </item>
+    <item>
+      <title>Episode 6</title>
+      <itunes:subtitle>Simple chat with Node.js and websockets</itunes:subtitle>
+      <itunes:author>Pedro Teixeira</itunes:author>
+      <itunes:summary>On this episode Pedro Teixeira shows how to serve websockets in node.js by making a simple web-based chat server.\r\n\r\nCode: https://gist.github.com/5151ec2f5d79ce74a68a</itunes:summary>
+      <description>On this episode Pedro Teixeira shows how to serve websockets in node.js by making a simple web-based chat server.\r\n\r\nCode: https://gist.github.com/5151ec2f5d79ce74a68a</description>
+      <pubDate>Thu, 03 Feb 2011 23:49:35 +0000</pubDate>
+      <link>http://nodetuts.com/tutorials/6-simple-chat-with-nodejs-and-websockets</link>
+      <enclosure type="video/mp4" length="56968531" url="http://nodetuts.s3.amazonaws.com/6.mp4"/>
+      <guid>http://nodetuts.com/tutorials/6-simple-chat-with-nodejs-and-websockets</guid>
+      <itunes:keywords>Node.js, screencast, tutorials, javascript, programming</itunes:keywords>
+    </item>
+    <item>
+      <title>Episode 5</title>
+      <itunes:subtitle>A basic TCP chat server</itunes:subtitle>
+      <itunes:author>Pedro Teixeira</itunes:author>
+      <itunes:summary>On this episode Pedro Teixeira shows you how to build a simple chat server using a net.Server and how to use Carrier to parse lines.</itunes:summary>
+      <description>On this episode Pedro Teixeira shows you how to build a simple chat server using a net.Server and how to use Carrier to parse lines.</description>
+      <pubDate>Thu, 03 Feb 2011 23:49:17 +0000</pubDate>
+      <link>http://nodetuts.com/tutorials/5-a-basic-tcp-chat-server</link>
+      <enclosure type="video/mp4" length="35002927" url="http://nodetuts.s3.amazonaws.com/5.mp4"/>
+      <guid>http://nodetuts.com/tutorials/5-a-basic-tcp-chat-server</guid>
+      <itunes:keywords>Node.js, screencast, tutorials, javascript, programming</itunes:keywords>
+    </item>
+    <item>
+      <title>Episode 4</title>
+      <itunes:subtitle>Step by Step</itunes:subtitle>
+      <itunes:author>Pedro Teixeira</itunes:author>
+      <itunes:summary>On this episode Pedro Teixeira shows an example of a deep nested application and shows the use of the Step library for helping control asynchronous flow.</itunes:summary>
+      <description>On this episode Pedro Teixeira shows an example of a deep nested application and shows the use of the Step library for helping control asynchronous flow.</description>
+      <pubDate>Thu, 03 Feb 2011 23:48:56 +0000</pubDate>
+      <link>http://nodetuts.com/tutorials/4-step-by-step</link>
+      <enclosure type="video/mp4" length="35002927" url="http://nodetuts.s3.amazonaws.com/4.mp4"/>
+      <guid>http://nodetuts.com/tutorials/4-step-by-step</guid>
+      <itunes:keywords>Node.js, screencast, tutorials, javascript, programming</itunes:keywords>
+    </item>
+    <item>
+      <title>Episode 3</title>
+      <itunes:subtitle>Flush the cat - filesystem, reading files, streams, slow clients and sys.pump</itunes:subtitle>
+      <itunes:author>Pedro Teixeira</itunes:author>
+      <itunes:summary>On this episode Pedro Teixeira shows you how node.js can serve static files using the fs module, introduces you to node streams, addresses the slow clients problem and shows the sys.pump utility. </itunes:summary>
+      <description>On this episode Pedro Teixeira shows you how node.js can serve static files using the fs module, introduces you to node streams, addresses the slow clients problem and shows the sys.pump utility. </description>
+      <pubDate>Thu, 03 Feb 2011 23:48:39 +0000</pubDate>
+      <link>http://nodetuts.com/tutorials/3-flush-the-cat-filesystem-reading-files-streams-slow-clients-and-syspump</link>
+      <enclosure type="video/mp4" length="46426018" url="http://nodetuts.s3.amazonaws.com/3.mp4"/>
+      <guid>http://nodetuts.com/tutorials/3-flush-the-cat-filesystem-reading-files-streams-slow-clients-and-syspump</guid>
+      <itunes:keywords>Node.js, screencast, tutorials, javascript, programming</itunes:keywords>
+    </item>
+    <item>
+      <title>Episode 2</title>
+      <itunes:subtitle>Webtail - Node.js child processes and HTTP chunked encoding</itunes:subtitle>
+      <itunes:author>Pedro Teixeira</itunes:author>
+      <itunes:summary>On this episode Pedro Teixeira shows the child process node.js API and shows you how to stream a child process output into your web app.</itunes:summary>
+      <description>On this episode Pedro Teixeira shows the child process node.js API and shows you how to stream a child process output into your web app.</description>
+      <pubDate>Thu, 03 Feb 2011 23:47:56 +0000</pubDate>
+      <link>http://nodetuts.com/tutorials/2-webtail-nodejs-child-processes-and-http-chunked-encoding</link>
+      <enclosure type="video/mp4" length="27894338" url="http://nodetuts.s3.amazonaws.com/2.mp4"/>
+      <guid>http://nodetuts.com/tutorials/2-webtail-nodejs-child-processes-and-http-chunked-encoding</guid>
+      <itunes:keywords>Node.js, screencast, tutorials, javascript, programming</itunes:keywords>
+    </item>
+    <item>
+      <title>Episode 1</title>
+      <itunes:subtitle>Node.js installation and first Hello World HTTP Server</itunes:subtitle>
+      <itunes:author>Pedro Teixeira</itunes:author>
+      <itunes:summary>On the first episode of Node Tuts, Pedro Teixeira explains how to install Node.js and also how to bootstrap your first HTTP web server.</itunes:summary>
+      <description>On the first episode of Node Tuts, Pedro Teixeira explains how to install Node.js and also how to bootstrap your first HTTP web server.</description>
+      <pubDate>Thu, 03 Feb 2011 23:47:20 +0000</pubDate>
+      <link>http://nodetuts.com/tutorials/1-nodejs-installation-and-first-hello-world-http-server</link>
+      <enclosure type="video/mp4" length="29513276" url="http://nodetuts.s3.amazonaws.com/1.mp4"/>
+      <guid>http://nodetuts.com/tutorials/1-nodejs-installation-and-first-hello-world-http-server</guid>
+      <itunes:keywords>Node.js, screencast, tutorials, javascript, programming</itunes:keywords>
+    </item>
+  </channel>
+</rss>

@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Node Tuts - Episode VII - Building a Streaming TCP Server</title>
+    <meta name="author" content="Pedro Teixeira">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/nodetuts.css">
+  </head>
+  <body>
+    <header>
+      <h1><a href="/">Node Tuts</a></h1>
+      <h2></h2>
+      <section id="helpers">
+        <p><a id="permalink" href="#">Permalink to current time</a></p>
+        <p><a id="openscript" href="#">Detach script window &#8663;</a></p>
+      </section>
+    </header>
+
+    <div class="alert" id="instructions" style="position: absolute">
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+      You can navigate the video and the script by using the &larr; and &rarr; cursor keys.
+    </div>
+
+    <section id="video"></section>
+    
+    <a href="#" id="popover" rel="popover" data-content="Change your window size to show the rolling script down here." data-title="Script" data-placement="top" data-selector="#script">
+    </a>
+
+    
+    <section id="script">
+<h1>TCP</h1>
+<p>On this episode we&#39;ll learn how we can:
+
+</p>
+<ul>
+<li>Create a TCP Server</li>
+<li>Stream data from the client</li>
+<li>Parse JSON using json-stream</li>
+<li>Create our own through mapping  stream</li>
+<li>Pipe data back to the client</li>
+<li>Persist streaming ata</li>
+</ul>
+<h2>Creating a TCP Server</h2>
+<p>In Node, the TCP functionality resides inside the <code>net</code> module. Let&#39;s require it:
+
+</p>
+<pre><code class="lang-javascript"><span class="keyword">var</span> net = require(<span class="string">'net'</span>);</code></pre>
+<p>Now let&#39;s create a TCP server:
+
+</p>
+<pre><code class="lang-javascript"><span class="keyword">var</span> server = net.createServer();</code></pre>
+<p>The <code>server</code> object is an event emitter which emits the <code>connection</code> event every time a client connects:
+
+</p>
+<pre><code class="lang-javascript">server.on(<span class="string">'connection'</span>, <span class="keyword">function</span>(socket) {
+  console.log(<span class="string">'got a new connection'</span>);
+});</code></pre>
+<p>Now we can make the server listen on a specific port:
+
+</p>
+<pre><code class="lang-javascript">server.listen(<span class="number">4000</span>);</code></pre>
+<h2>Creating a Logs Server</h2>
+<p>Say that we want to build a logging server and want to persist everything that every user sends to the server to the server.
+
+</p>
+<p>We&#39;d need to create a file write stream to persist the logs:
+
+</p>
+<pre><code class="lang-javascript"><span class="keyword">var</span> net = require(<span class="string">'net'</span>);
+<span class="keyword">var</span> file = require(<span class="string">'fs'</span>).createWriteStream(__dirname + <span class="string">'/logs.json'</span>);
+
+<span class="keyword">var</span> server = net.createServer();
+server.on(<span class="string">'connection'</span>, <span class="keyword">function</span>(socket) {
+  socket.pipe(file);
+});
+
+server.listen(<span class="number">4000</span>);</code></pre>
+<p>Let&#39;s try to start and then use the server:
+
+</p>
+<pre><code class="lang-bash">$ node server.js&amp;
+$ nc localhost 4000
+dsadsáda
+dsadsádad
+andasd
+^C
+$ nc localhost 4000
+dsadsáda
+dsadsádad
+andasd
+^C
+
+events.js:71
+        throw arguments[1]; // Unhandled <span class="string">'error'</span> event
+                       ^
+Error: EBADF, close</code></pre>
+<p>Here we could see that we are having an error because we are trying to close the file twice.
+
+</p>
+<p>It happens that pipe closes the destination stream if the source stream ends. That&#39;s not really what we
+want in this case, so let&#39;s tell pipe that:
+
+</p>
+<pre><code class="lang-javascript">   socket.pipe(file, {end: <span class="literal">false</span>});</code></pre>
+<p>Now we can see that, no matter how many times we connect and disconnect, the file stays open.
+
+</p>
+<p>Another problem that we have is that the log.json file gets overwritten evey time we start our server.
+
+</p>
+<p>What we want is for the file to be appended:
+
+</p>
+<pre><code class="lang-javascript"><span class="keyword">var</span> file = require(<span class="string">'fs'</span>).createWriteStream(__dirname + <span class="string">'/logs.json'</span>, {flags: <span class="string">'a'</span>});</code></pre>
+<h3>Using JSONStream</h3>
+<p>Now we don&#39;t want to write unstructured data, we want the clients of this log server to write in the JSON format.
+
+</p>
+<p>For this we we&#39;ll use the <code>json-stream</code> third-party module:
+
+</p>
+<p><a href="https://npmjs.org/package/json-stream">https://npmjs.org/package/json-stream</a>
+
+</p>
+<pre><code class="lang-bash">$ npm install json-stream</code></pre>
+<p>Let&#39;s then use json-stream to parse the input stream:
+
+</p>
+<pre><code class="lang-javascript"><span class="keyword">var</span> JSONStream = require(<span class="string">'json-stream'</span>);
+
+server.on(<span class="string">'connection'</span>, <span class="keyword">function</span>(socket) {
+
+  <span class="keyword">var</span> jsonStream = <span class="keyword">new</span> JSONStream();
+
+  socket
+    .pipe(jsonStream)
+    .pipe(file, {end: <span class="literal">false</span>});
+});</code></pre>
+<p>Let&#39;s test the server:
+
+</p>
+<pre><code class="lang-bash">$ kill %1
+$ rm logs.json
+$ node server.js&amp;
+$ nc localhost 4000
+{<span class="string">"a"</span>: 1}
+{<span class="string">"b"</span>: 2}
+^C</code></pre>
+<p>Let&#39;s now inspect the contents of the file:
+
+</p>
+<pre><code class="lang-bash">cat log.json
+[Object][Object]</code></pre>
+<p>Oops! Two problems here: 1) looks like objects in Javascript are being printed out as [Object] and 2) they&#39;re not new-line separated.
+
+</p>
+<p>Let&#39;s solve this by using a very helpful module for simply creating your own streams: Dominic Tarr&#39;s <code>event-stream</code>:
+
+</p>
+<pre><code class="lang-bash">$ npm install event-stream</code></pre>
+<p>Let&#39;s use it to create a through stream that maps a JS object into a the serialized representation followed by a new-line character:
+
+</p>
+<pre><code class="lang-javascript"><span class="keyword">var</span> es = require(<span class="string">'event-stream'</span>);
+
+<span class="keyword">var</span> server = net.createServer();
+
+<span class="keyword">var</span> stringifier = es.mapSync(<span class="keyword">function</span>(data) {
+  <span class="keyword">return</span> JSON.stringify(data) + <span class="string">"\n"</span>;
+});
+
+stringifier.pipe(file);
+
+server.on(<span class="string">'connection'</span>, <span class="keyword">function</span>(socket) {
+
+  socket
+    .pipe(jsonStream)
+    .pipe(stringifier, {end: <span class="literal">false</span>});
+});</code></pre>
+<p>Let&#39;s try this now:
+
+</p>
+<pre><code class="lang-bash">$ kill %1
+$ rm logs.json
+$ node server.js&amp;
+$ nc localhost 4000
+{<span class="string">"a"</span>: 1}
+{<span class="string">"b"</span>: 2}
+{<span class="string">"c"</span>: 3}
+^C
+$ cat logs.json
+{<span class="string">"a"</span>:1}
+{<span class="string">"b"</span>:2}
+{<span class="string">"c"</span>:3}</code></pre>
+<p>Nice!
+
+</p>
+<h3>Piping out</h3>
+<p>Now we also want the logger to output the stream of logs in real-time to every connecting user, but we want that stream to be controllable:
+
+</p>
+<ul>
+<li>the user can issue start and a stop commands</li>
+<li>the user can provide a filtering function to stream events selectively</li>
+</ul>
+<p>Now that we have a part of our process that is the write TCP server, we need a read TCP server. The read will use the write output to pipe the data into the read server clients.
+
+</p>
+<p>First, let&#39;s separate the write server part into a file named <code>write_server.js</code>:
+
+</p>
+<pre><code class="lang-javascript"><span class="keyword">var</span> net = require(<span class="string">'net'</span>);
+<span class="keyword">var</span> file = require(<span class="string">'fs'</span>).createWriteStream(__dirname + <span class="string">'/logs.json'</span>, {flags: <span class="string">'a'</span>});
+<span class="keyword">var</span> JSONStream = require(<span class="string">'json-stream'</span>);
+<span class="keyword">var</span> es = require(<span class="string">'event-stream'</span>);
+
+<span class="function"><span class="keyword">function</span> <span class="title">identity</span><span class="params">(o)</span> {</span>
+  <span class="keyword">return</span> o;
+}
+
+<span class="keyword">var</span> source = es.mapSync(identity);
+
+<span class="keyword">var</span> stringifier = es.mapSync(<span class="keyword">function</span>(data) {
+  <span class="keyword">return</span> JSON.stringify(data) + <span class="string">"\n"</span>;
+});
+
+source
+  .pipe(stringifier)
+  .pipe(file);
+
+<span class="keyword">var</span> server = net.createServer();
+server.on(<span class="string">'connection'</span>, <span class="keyword">function</span>(socket) {
+
+  <span class="keyword">var</span> jsonStream = <span class="keyword">new</span> JSONStream();
+
+  socket
+    .pipe(jsonStream)
+    .pipe(source, {end: <span class="literal">false</span>})
+    ;
+  ;
+
+});
+
+server.listen(<span class="number">4000</span>);
+
+module.exports = source;</code></pre>
+<p>This new module now exports a source for log events.
+
+</p>
+<p>Now, let&#39;s create the the read server on a file named <code>read_server.js</code>. This module will export an initialization function that obtains the event source:
+
+</p>
+<pre><code class="lang-javascript"><span class="keyword">var</span> net = require(<span class="string">'net'</span>);
+
+module.exports = <span class="keyword">function</span>(source) {
+  <span class="keyword">var</span> server = net.createServer();
+
+  server.on(<span class="string">'connection'</span>, <span class="keyword">function</span>(socket) {
+
+  });
+
+  server.listen(<span class="number">4001</span>);
+}</code></pre>
+<p>First we&#39;ll need to parse commands, which will activate some actions. These commands will come in the form of JSON:
+
+</p>
+<pre><code class="lang-javascript"><span class="keyword">var</span> net = require(<span class="string">'net'</span>);
+<span class="keyword">var</span> JSONStream = require(<span class="string">'json-stream'</span>);
+
+
+module.exports = <span class="keyword">function</span>(source) {
+  <span class="keyword">var</span> server = net.createServer();
+
+  server.on(<span class="string">'connection'</span>, <span class="keyword">function</span>(socket) {
+    <span class="keyword">var</span> jsonStream = <span class="keyword">new</span> JSONStream();
+
+    jsonStream.on(<span class="string">'data'</span>, <span class="keyword">function</span>(command) {
+      <span class="keyword">var</span> action = command.action;
+      <span class="keyword">if</span> (action &amp;&amp; actions[action]) actions[action](command);
+    });
+
+    socket.pipe(jsonStream);
+  });
+
+  server.listen(<span class="number">4001</span>);
+}</code></pre>
+<p>Now we need a <code>actions</code> object with all available actions:
+
+</p>
+<pre><code class="lang-javascript"><span class="keyword">var</span> net = require(<span class="string">'net'</span>);
+<span class="keyword">var</span> JSONStream = require(<span class="string">'json-stream'</span>);
+<span class="keyword">var</span> es = require(<span class="string">'event-stream'</span>);
+
+module.exports = <span class="keyword">function</span>(source) {
+  <span class="keyword">var</span> server = net.createServer();
+
+  server.on(<span class="string">'connection'</span>, <span class="keyword">function</span>(socket) {
+    <span class="keyword">var</span> started = <span class="literal">false</span>;
+
+    <span class="keyword">var</span> stringifier = es.mapSync(<span class="keyword">function</span>(data) {
+      <span class="keyword">return</span> JSON.stringify(data) + <span class="string">"\n"</span>;
+    });
+
+
+    <span class="function"><span class="keyword">function</span> <span class="title">end</span><span class="params">()</span> {</span>
+
+    }
+
+    <span class="keyword">var</span> actions = {
+      start: <span class="keyword">function</span>(command) {
+        <span class="keyword">if</span> (started) <span class="keyword">return</span>;
+
+        source
+          .pipe(stringifier)
+          .pipe(socket);
+
+        started = <span class="literal">true</span>;
+      },
+
+      stop: end
+    };
+
+    <span class="keyword">var</span> jsonStream = <span class="keyword">new</span> JSONStream();
+
+    jsonStream.on(<span class="string">'data'</span>, <span class="keyword">function</span>(command) {
+      <span class="keyword">var</span> action = command.action;
+      <span class="keyword">if</span> (action &amp;&amp; actions[action]) actions[action](command);
+    });
+
+    socket.pipe(jsonStream);
+
+    socket.on(<span class="string">'end'</span>, end);
+  });
+
+  server.listen(<span class="number">4001</span>);
+}</code></pre>
+<p>This code makes use of the source stream, piping it to the clients as needed.
+
+</p>
+<p>Now we need to implement the <code>end()</code> function, which means to be able to end the stream, which means that we should be able to unpipe.
+
+</p>
+<p>It turns out that unpiping is not trivial, but there is a third-party module  named <code>pup</code> that makes it easy.
+
+</p>
+<pre><code class="lang-bash">$ npm install pup</code></pre>
+<p>Then we need to add the require on the top:
+
+</p>
+<pre><code class="lang-javascript"><span class="keyword">var</span> pup = require(<span class="string">'pup'</span>);</code></pre>
+<p>Then we need to make the following changes:
+
+</p>
+<pre><code class="lang-javascript">    <span class="function"><span class="keyword">function</span> <span class="title">end</span><span class="params">()</span> {</span>
+      pup.unpipe(source, stringifier);
+      pup.unpipe(stringifier, socket);
+      started = <span class="literal">false</span>;
+    }
+
+    <span class="keyword">var</span> actions = {
+      start: <span class="keyword">function</span>(command) {
+        <span class="keyword">if</span> (started) <span class="keyword">return</span>;
+
+        pup.pipe(source, stringifier);
+        pup.pipe(stringifier, socket);
+
+        started = <span class="literal">true</span>;
+      },
+
+      stop: end
+    };</code></pre>
+<h3>Filter the Stream</h3>
+<p>Now we want to allow the client to define a function that will be used to filter the log stream coming into the client. We can allow to pass a function that will be used to filter the event at the source.
+
+</p>
+<p>For this we need to make the following changes to the read server:
+
+</p>
+<pre><code class="lang-javascript"><span class="keyword">var</span> net = require(<span class="string">'net'</span>);
+<span class="keyword">var</span> JSONStream = require(<span class="string">'json-stream'</span>);
+<span class="keyword">var</span> es = require(<span class="string">'event-stream'</span>);
+<span class="keyword">var</span> pup = require(<span class="string">'pup'</span>);
+
+<span class="function"><span class="keyword">function</span> <span class="title">alwaysReturnTrue</span><span class="params">()</span> {</span>
+  <span class="keyword">return</span> <span class="literal">true</span>;
+}
+
+module.exports = <span class="keyword">function</span>(source) {
+  <span class="keyword">var</span> server = net.createServer();
+
+  server.on(<span class="string">'connection'</span>, <span class="keyword">function</span>(socket) {
+    <span class="keyword">var</span> started = <span class="literal">false</span>;
+    <span class="keyword">var</span> filter;
+
+    <span class="keyword">var</span> stringifier = es.mapSync(<span class="keyword">function</span>(data) {
+      <span class="keyword">return</span> JSON.stringify(data) + <span class="string">"\n"</span>;
+    });
+
+
+    <span class="function"><span class="keyword">function</span> <span class="title">end</span><span class="params">()</span> {</span>
+      pup.unpipe(source, filter);
+      pup.unpipe(filter, stringifier);
+      pup.unpipe(stringifier, socket);
+      started = <span class="literal">false</span>;
+    }
+
+    <span class="keyword">var</span> actions = {
+      start: <span class="keyword">function</span>(command) {
+        <span class="keyword">if</span> (started) <span class="keyword">return</span>;
+
+        <span class="keyword">if</span> (command.filter) {
+          command.filter = <span class="keyword">new</span> Function(<span class="string">'ev'</span>, command.filter);
+        }
+        <span class="keyword">if</span> (! command.filter || <span class="keyword">typeof</span> command.filter != <span class="string">'function'</span>) {
+          command.filter = alwaysReturnTrue;
+        }
+
+        filter = es.mapSync(<span class="keyword">function</span>(event) {
+          <span class="keyword">if</span> (command.filter(event)) <span class="keyword">return</span> event;
+        });
+
+        pup.pipe(source, filter);
+        pup.pipe(filter, stringifier);
+        pup.pipe(stringifier, socket);
+
+        started = <span class="literal">true</span>;
+      },
+
+      stop: end
+    };
+
+    <span class="keyword">var</span> jsonStream = <span class="keyword">new</span> JSONStream();
+
+    jsonStream.on(<span class="string">'data'</span>, <span class="keyword">function</span>(command) {
+      <span class="keyword">var</span> action = command.action;
+      <span class="keyword">if</span> (action &amp;&amp; actions[action]) actions[action](command);
+    });
+
+    socket.pipe(jsonStream);
+
+    socket.on(<span class="string">'end'</span>, end);
+  });
+
+  server.listen(<span class="number">4001</span>);
+}</code></pre>
+<p>Now we can test the server:
+
+</p>
+<pre><code class="lang-bash">$ kill %1
+$ node server&amp;
+$ nc localhost 4000</code></pre>
+<p>And on another window we launch the client:
+
+</p>
+<pre><code class="lang-bash">$ nc localhost 4001</code></pre>
+<p>On the client we can filter the events by providing the body of a function in the filter argument. For instance, to get only those events that have an <code>a</code> attribute that starts by the letter &quot;B&quot;:
+
+</p>
+<pre><code class="lang-bash">{<span class="string">"action"</span>:<span class="string">"start"</span>, <span class="string">"filter"</span>: <span class="string">"return ev.a &amp;&amp; ev.a.charAt(0) == 'B'"</span>}</code></pre>
+
+<script>
+window.nodeTutsVideo = {"title":"Episode VII - Building a Streaming TCP Server","description":"Creating a TCP Server. Creating a Logs Server. Using JSONStream. Piping out. Filter the Stream.","author":"Pedro Teixeira","date":"2012/11/26","video":{"url":"http://player.vimeo.com/54283874","provider":"vimeo"},"frames":[0,9,15,30,56,58,59,65,76,79,98,101,130,133,156,162,212,216,244,267,276,279,305,336,338,378,383,395,397,399,406,410,471,472,503,504,507,525,549,556,569,627,630,661,662,666,681,692,708,712,796,801,835,928,1039,1042,1047,1208,1209,1211,1244,1257,1258,1260,1262,1299,1404,1458,1468,1634,1642,1676,1676,1677,1720],"file_name":"07-tcp"};
+</script>
+    </section>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/jquery-smooth-scroll.min.js"></script>
+    <script src="js/keymaster.min.js"></script>
+    <script src="js/popcorn-complete.min.js"></script>
+    <script src="js/jquery.cook.js"></script>
+    <script src="js/nodetuts.js"></script>
+    <script>
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-19307016-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+
+    </script>
+  </body>
+</html>

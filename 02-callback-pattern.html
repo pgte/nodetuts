@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Node Tuts - Episode II - The Callback Pattern</title>
+    <meta name="author" content="Pedro Teixeira">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/nodetuts.css">
+  </head>
+  <body>
+    <header>
+      <h1><a href="/">Node Tuts</a></h1>
+      <h2></h2>
+      <section id="helpers">
+        <p><a id="permalink" href="#">Permalink to current time</a></p>
+        <p><a id="openscript" href="#">Detach script window &#8663;</a></p>
+      </section>
+    </header>
+
+    <div class="alert" id="instructions" style="position: absolute">
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+      You can navigate the video and the script by using the &larr; and &rarr; cursor keys.
+    </div>
+
+    <section id="video"></section>
+    
+    <a href="#" id="popover" rel="popover" data-content="Change your window size to show the rolling script down here." data-title="Script" data-placement="top" data-selector="#script">
+    </a>
+
+    
+    <section id="script">
+<h1>The Callback Pattern</h1>
+<p>In Node, when you&#39;re performing an I/O operation like reading from a file, writing to a socket or making a database query, the function you&#39;re calling to initiate the I/O is not going to return the status or the value you&#39;re looking for. Instead, you have to provide a a function that will be called when that operation is completed.
+
+</p>
+<p>One example is when you are reading the contents of a file into memory:
+
+</p>
+<pre><code class="lang-javascript"><span class="keyword">var</span> fs = require(<span class="string">'fs'</span>);
+
+<span class="function"><span class="keyword">function</span> <span class="title">callback</span><span class="params">(err, results)</span> {</span>
+  <span class="keyword">if</span> (err) <span class="keyword">return</span> handleError(err);
+  console.log(<span class="string">'File contents:'</span>, results);
+}
+
+fs.readFile(<span class="string">'/etc/passwd'</span>, callback);</code></pre>
+<p>In this example we are declaring a function named <code>callback</code>, which we are then passing as an argument to the function that will read the desired file content.
+
+</p>
+<p>This function sometimes is declared inline like this:
+
+</p>
+<pre><code class="lang-javascript"><span class="keyword">var</span> fs = require(<span class="string">'fs'</span>);
+
+fs.readFile(<span class="string">'/etc/passwd'</span>, <span class="function"><span class="keyword">function</span> <span class="params">(err, results)</span> {</span>
+  <span class="keyword">if</span> (err) <span class="keyword">return</span> handleError(err);
+  console.log(<span class="string">'File contents:'</span>, results);
+});</code></pre>
+<p>This style where you inline the callback functions, while less &quot;tidy&quot;, is easier to read since the temporal dependence is clearer: first you initiate the readFile, then the callback is invoked.
+
+</p>
+<h2>Callback-last</h2>
+<p>Here you are witnessing something that is a defacto standard in Node and most of the third-party libraries:
+
+</p>
+<blockquote>
+<p>The function call that initiates I/O accepts a callback function as last argument.
+
+</p>
+</blockquote>
+<p>Another similar example is when you want to do a DNS lookup:
+
+</p>
+<pre><code class="lang-javascript"><span class="keyword">var</span> dns = require(<span class="string">'dns'</span>);
+
+dns.lookup(<span class="string">'google.com'</span>, <span class="keyword">function</span>(err, ipAddress) {
+  <span class="keyword">if</span> (err) <span class="keyword">return</span> handleError(err);
+  console.log(<span class="string">'google.com resolved to %s'</span>, ipAddress); 
+});</code></pre>
+<h2>Error-first</h2>
+<p>Another pattern that you may have noticed is that your callback function will be invoked with an error as the first argument if an error occurs. This is also a defacto pattern in Node.js and most third-party modules that use this pattern.
+
+</p>
+<p>After you call the function that initiates I/O, that function must always call back your callback function <strong>exactly once</strong> — whether there is an error or if the operation completed successfully.
+
+</p>
+<blockquote>
+<p>If an error occurred, the error will be passed in as the first argument, and you should not expect any additional argument to be filled in. You should handle the error — probably informing the user that an error occurred.
+
+</p>
+</blockquote>
+<p>If there is no error, the first argument of the callback will contain a <code>null</code> or <code>undefined</code> value, which in any case you can test with a simple <code>if</code> statement like in this example:
+
+</p>
+<pre><code class="lang-javascript">fs.readFile(<span class="string">'/etc/passwd'</span>, <span class="function"><span class="keyword">function</span> <span class="params">(err, results)</span> {</span>
+  <span class="keyword">if</span> (err) <span class="keyword">return</span> handleError(err);
+  console.log(<span class="string">'File contents:'</span>, results);
+});</code></pre>
+<p>Here we&#39;re returning whatever the call to the <code>handleError</code> function returns because we don&#39;t really care what our callback function returns. Instead, if you prefer, we can be a little bit more verbose:
+
+</p>
+<pre><code class="lang-javascript">fs.readFile(<span class="string">'/etc/passwd'</span>, <span class="function"><span class="keyword">function</span> <span class="params">(err, results)</span> {</span>
+  <span class="keyword">if</span> (err) {
+    handleError(err);
+    <span class="keyword">return</span>;
+  }
+  console.log(<span class="string">'File contents:'</span>, results);
+});</code></pre>
+
+<script>
+window.nodeTutsVideo = {"title":"Episode II - The Callback Pattern","description":"The standard Node callback pattern. Callback-last. Error-first.","author":"Pedro Teixeira","date":"2012/11/05","video":{"url":"http://player.vimeo.com/53008406","provider":"vimeo"},"frames":[0,34,57,109,117,152,157,170,198,206,210,238,260,267,271,297,301,310,316,322,340],"file_name":"02-callback-pattern"};
+</script>
+    </section>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/jquery-smooth-scroll.min.js"></script>
+    <script src="js/keymaster.min.js"></script>
+    <script src="js/popcorn-complete.min.js"></script>
+    <script src="js/jquery.cook.js"></script>
+    <script src="js/nodetuts.js"></script>
+    <script>
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-19307016-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+
+    </script>
+  </body>
+</html>

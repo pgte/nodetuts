@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Node Tuts - Episode VIII - Handling Errors Using Domains</title>
+    <meta name="author" content="Pedro Teixeira">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/nodetuts.css">
+  </head>
+  <body>
+    <header>
+      <h1><a href="/">Node Tuts</a></h1>
+      <h2></h2>
+      <section id="helpers">
+        <p><a id="permalink" href="#">Permalink to current time</a></p>
+        <p><a id="openscript" href="#">Detach script window &#8663;</a></p>
+      </section>
+    </header>
+
+    <div class="alert" id="instructions" style="position: absolute">
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+      You can navigate the video and the script by using the &larr; and &rarr; cursor keys.
+    </div>
+
+    <section id="video"></section>
+    
+    <a href="#" id="popover" rel="popover" data-content="Change your window size to show the rolling script down here." data-title="Script" data-placement="top" data-selector="#script">
+    </a>
+
+    
+    <section id="script">
+<h1>Domains</h1>
+<p>In this episode we are going to cover the usage of domains and how that can help to make your Node.js application server resilient and manageable on the event of errors.
+
+</p>
+<h2>Life Before Domains</h2>
+<p>Before domains were introduced in Node v0.8, the life of a Node.js server was harder. Whenever an error was thrown, the Node process would log the error and exit.
+
+</p>
+<p><strong>01_server_throws.js:</strong>
+
+</p>
+<pre><code class="lang-javascript"><span class="keyword">var</span> server = require(<span class="string">'http'</span>).createServer();
+server.on(<span class="string">'request'</span>, <span class="keyword">function</span>(req, res) {
+  a.abc();
+  res.end(<span class="string">'Thank you for using our service!'</span>);
+});
+server.listen(<span class="number">8080</span>);</code></pre>
+<p>In this example we are forcing an error to be thrown when processing any request, but this type of error could happen occasionally, bringin your entire server down, and with it all the clients that were connected.
+
+</p>
+<p>To prevent Node.js from exiting, we could listen for the uncaughtException event on the global process object:
+
+</p>
+<p><strong>02_uncaught_exception_handler.js:</strong>
+
+</p>
+<pre><code class="lang-javascript">process.on(<span class="string">'uncaughtException'</span>, <span class="keyword">function</span>(err) {
+  console.log(<span class="string">'uncaught exception here'</span>, err);
+});
+
+<span class="keyword">var</span> server = require(<span class="string">'http'</span>).createServer();
+server.on(<span class="string">'request'</span>, <span class="keyword">function</span>(req, res) {
+  a.abc();
+  res.end(<span class="string">'Thank you for using our service!'</span>);
+});
+server.listen(<span class="number">8080</span>);</code></pre>
+<p>This prevents your Node process from going down, but you leave it with a resource leak, which in this case is an open connection to the client on an unresponded request.
+
+</p>
+<p>The most responsibla thing to do in this case is to log the error and exit the process.
+
+
+</p>
+<h2>Event Emitters and Error Handling</h2>
+<p>All events types are equal to an event emitter with one exception: the error event, which, if not handled, has a similar effect as an uncaught exception.
+
+</p>
+<p>Let&#39;s see what happens when an event emitter emits an error event.
+
+</p>
+<pre><code class="lang-javascript"><span class="keyword">var</span> EventEmitter = require(<span class="string">'events'</span>).EventEmitter;
+
+<span class="keyword">var</span> server = require(<span class="string">'http'</span>).createServer();
+server.on(<span class="string">'request'</span>, <span class="keyword">function</span>(req, res) {
+  <span class="keyword">var</span> ee = <span class="keyword">new</span> EventEmitter();
+  ee.emit(<span class="string">'example'</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>);
+  ee.emit(<span class="string">'error'</span>, <span class="keyword">new</span> Error(<span class="string">'something terrible has happened'</span>));
+  res.end(<span class="string">'Thank you for using our service!'</span>);
+});
+server.listen(<span class="number">8080</span>);</code></pre>
+<p>Here we instantiated a new event emitter just to mimick what happens, for instance, when you do an HTTP request or any other kind of operation that might fail on an event emitter.
+
+</p>
+<p>Here you can see that emitting the example event does not pose a problem, but the error event originates an uncaughtException that terminates the process.
+
+</p>
+<p>Without using domains, the best way to handle this is to listen to the error event, which prevents the uncaughtException from being thrown.
+
+</p>
+<p><strong>04_event_emitter_handle_error.js:</strong>
+
+</p>
+<pre><code class="lang-javascript"><span class="keyword">var</span> EventEmitter = require(<span class="string">'events'</span>).EventEmitter;
+
+<span class="keyword">var</span> server = require(<span class="string">'http'</span>).createServer();
+server.on(<span class="string">'request'</span>, <span class="keyword">function</span>(req, res) {
+  <span class="keyword">var</span> ee = <span class="keyword">new</span> EventEmitter();
+
+  ee.on(<span class="string">'error'</span>, <span class="keyword">function</span>(err) {
+    res.writeHead(<span class="number">500</span>);
+    res.end(err.message);
+  });
+
+  ee.emit(<span class="string">'example'</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>);
+  ee.emit(<span class="string">'error'</span>, <span class="keyword">new</span> Error(<span class="string">'something terrible has happened'</span>));
+  res.end(<span class="string">'Thank you for using our service!'</span>);
+});
+server.listen(<span class="number">8080</span>);</code></pre>
+<h2>Enter domains</h2>
+<p>Domains, which were introduced in Node v0.8, come to solve these types of problems of error handling. Using a domain you can channel all the errors happening in the context of that domain.
+
+</p>
+<p>Domains propagate across event emitters. When an event emitter is constructed, it inherits the current domain, and when an event emitter emits, that domain is entered.
+
+</p>
+<p>Here is how you can use domains in our previous server:
+
+</p>
+<p><strong>05_domains.js:</strong>
+
+</p>
+<pre><code class="lang-javascript"><span class="keyword">var</span> EventEmitter = require(<span class="string">'events'</span>).EventEmitter;
+<span class="keyword">var</span> domain = require(<span class="string">'domain'</span>);
+
+<span class="keyword">var</span> server = require(<span class="string">'http'</span>).createServer();
+server.on(<span class="string">'request'</span>, <span class="keyword">function</span>(req, res) {
+
+  <span class="keyword">var</span> d = domain.create();
+
+  d.once(<span class="string">'error'</span>, <span class="keyword">function</span>(err) {
+    res.writeHead(<span class="number">500</span>);
+    res.end(err.message);
+  });
+
+  d.run(<span class="keyword">function</span>() {
+    <span class="keyword">var</span> ee = <span class="keyword">new</span> EventEmitter();
+
+    ee.emit(<span class="string">'example'</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>);
+    ee.emit(<span class="string">'error'</span>, <span class="keyword">new</span> Error(<span class="string">'something terrible has happened'</span>));
+    res.end(<span class="string">'Thank you for using our service!'</span>);    
+  });
+
+});
+server.listen(<span class="number">8080</span>);</code></pre>
+<p>As you can see, instead of firing an uncaughtException, by wrapping the execution inside a domain.run call, the event emitter got automatically attached to the active domain.
+
+</p>
+<p>Besides binding event emitters, it can also catch errors thrown into the run context:
+
+
+</p>
+<p><strong>06_domains_throw.js:</strong>
+
+</p>
+<pre><code class="lang-javascript"><span class="keyword">var</span> EventEmitter = require(<span class="string">'events'</span>).EventEmitter;
+<span class="keyword">var</span> domain = require(<span class="string">'domain'</span>);
+
+<span class="keyword">var</span> a;
+
+<span class="keyword">var</span> server = require(<span class="string">'http'</span>).createServer();
+server.on(<span class="string">'request'</span>, <span class="keyword">function</span>(req, res) {
+
+  <span class="keyword">var</span> d = domain.create();
+
+  d.on(<span class="string">'error'</span>, <span class="keyword">function</span>(err) {
+    res.writeHead(<span class="number">500</span>);
+    res.end(err.message);
+  });
+
+  d.run(<span class="keyword">function</span>() {
+    a.abc();
+    <span class="keyword">var</span> ee = <span class="keyword">new</span> EventEmitter();
+
+    ee.emit(<span class="string">'example'</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>);
+    ee.emit(<span class="string">'error'</span>, <span class="keyword">new</span> Error(<span class="string">'something terrible has happened'</span>));
+    res.end(<span class="string">'Thank you for using our service!'</span>);    
+  });
+
+});
+server.listen(<span class="number">8080</span>);</code></pre>
+<p>Here you can see that the call to a.abc() throws an error, but that error does not stop the process and is conducted to the domain.
+
+</p>
+<p>This also works if the error is thrown asynchronously:
+
+</p>
+<p><strong>07_domains_throw_async.js:</strong>
+
+</p>
+<pre><code class="lang-javascript"><span class="keyword">var</span> EventEmitter = require(<span class="string">'events'</span>).EventEmitter;
+<span class="keyword">var</span> domain = require(<span class="string">'domain'</span>);
+
+<span class="keyword">var</span> a;
+
+<span class="keyword">var</span> server = require(<span class="string">'http'</span>).createServer();
+server.on(<span class="string">'request'</span>, <span class="keyword">function</span>(req, res) {
+
+  <span class="keyword">var</span> d = domain.create();
+
+  d.on(<span class="string">'error'</span>, <span class="keyword">function</span>(err) {
+    res.writeHead(<span class="number">500</span>);
+    res.end(err.message);
+  });
+
+  d.run(<span class="keyword">function</span>() {
+    setTimeout(<span class="keyword">function</span>() {
+      a.abc();
+    }, <span class="number">500</span>);
+  });
+
+});
+server.listen(<span class="number">8080</span>);</code></pre>
+<h2>Explicitly Adding Event Emitters</h2>
+<p>We saw how event emitters are explicitely added to a domain if they&#39;re run in the context pf a domain. But if you don&#39;t have a domain setup when the event emitter is created, you can explicitely add event emitters like this:
+
+</p>
+<p><strong>08_domains_add.js:</strong>
+
+</p>
+<pre><code class="lang-javascript"><span class="keyword">var</span> EventEmitter = require(<span class="string">'events'</span>).EventEmitter;
+<span class="keyword">var</span> domain = require(<span class="string">'domain'</span>);
+
+<span class="keyword">var</span> a;
+
+<span class="keyword">var</span> server = require(<span class="string">'http'</span>).createServer();
+server.on(<span class="string">'request'</span>, <span class="keyword">function</span>(req, res) {
+
+  <span class="keyword">var</span> d = domain.create();
+
+  d.add(req);
+  d.add(res);
+
+  <span class="keyword">var</span> replied = <span class="literal">false</span>;
+
+  d.on(<span class="string">'error'</span>, <span class="keyword">function</span>(err) {
+    <span class="keyword">if</span> (! replied) {
+      replied = <span class="literal">true</span>;
+      res.writeHead(<span class="number">500</span>);
+      res.end(err.message);      
+    }
+  });
+
+  d.run(<span class="keyword">function</span>() {
+    setTimeout(<span class="keyword">function</span>() {
+      res.emit(<span class="string">'error'</span>, <span class="keyword">new</span> Error(<span class="string">'halp!'</span>));
+    }, <span class="number">500</span>);
+  });
+
+});
+server.listen(<span class="number">8080</span>);</code></pre>
+<p>Here we added the request and response objects, which are also event emitters. In the event of an error, we now check if we already tried replying. To prevent If we did, we don&#39;t try again, since the error was probably generated by trying to reply.
+
+
+</p>
+<h2>Intercepting callbacks</h2>
+<p>Besides event emitters, I/O is also processed in the context of callbacks. Domains also support callbacks. For instance, if you&#39;re reading a file:
+
+</p>
+<p><strong>09_domains_intercept.js:</strong>
+
+</p>
+<pre><code class="lang-javascript"><span class="keyword">var</span> EventEmitter = require(<span class="string">'events'</span>).EventEmitter;
+<span class="keyword">var</span> domain = require(<span class="string">'domain'</span>);
+<span class="keyword">var</span> fs = require(<span class="string">'fs'</span>);
+
+<span class="keyword">var</span> a;
+
+<span class="keyword">var</span> server = require(<span class="string">'http'</span>).createServer();
+server.on(<span class="string">'request'</span>, <span class="keyword">function</span>(req, res) {
+
+  <span class="keyword">var</span> d = domain.create();
+
+  d.add(req);
+  d.add(res);
+
+  <span class="keyword">var</span> replied = <span class="literal">false</span>;
+
+  d.on(<span class="string">'error'</span>, <span class="keyword">function</span>(err) {
+    <span class="keyword">if</span> (! replied) {
+      replied = <span class="literal">true</span>;
+      res.writeHead(<span class="number">500</span>);
+      res.end(err.message);      
+    }
+  });
+
+  d.run(<span class="keyword">function</span>() {
+    fs.readFile(__filename, d.intercept(<span class="keyword">function</span>(contents) {
+      res.end(contents);
+    }));
+  });
+
+});
+server.listen(<span class="number">8080</span>);</code></pre>
+
+<script>
+window.nodeTutsVideo = {"title":"Episode VIII - Handling Errors Using Domains","description":"Life Before Domains. Event Emitters and Error Handling. Enter domains. Intercepting callbacks.","author":"Pedro Teixeira","date":"2013/03/19","video":{"url":"http://player.vimeo.com/62155022","provider":"vimeo"},"frames":[0,14,27,33,49,55,144,156,164,166,200,215,233,238,253,259,319,332,345,357,359,437,442,457,473,477,479,579,597,604,605,624,631,667,668,670,672,685,687,732,816,821,832,835],"file_name":"08-domains"};
+</script>
+    </section>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/jquery-smooth-scroll.min.js"></script>
+    <script src="js/keymaster.min.js"></script>
+    <script src="js/popcorn-complete.min.js"></script>
+    <script src="js/jquery.cook.js"></script>
+    <script src="js/nodetuts.js"></script>
+    <script>
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-19307016-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+
+    </script>
+  </body>
+</html>

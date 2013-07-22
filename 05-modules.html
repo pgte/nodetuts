@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Node Tuts - Episode V - Modules</title>
+    <meta name="author" content="Pedro Teixeira">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/nodetuts.css">
+  </head>
+  <body>
+    <header>
+      <h1><a href="/">Node Tuts</a></h1>
+      <h2></h2>
+      <section id="helpers">
+        <p><a id="permalink" href="#">Permalink to current time</a></p>
+        <p><a id="openscript" href="#">Detach script window &#8663;</a></p>
+      </section>
+    </header>
+
+    <div class="alert" id="instructions" style="position: absolute">
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+      You can navigate the video and the script by using the &larr; and &rarr; cursor keys.
+    </div>
+
+    <section id="video"></section>
+    
+    <a href="#" id="popover" rel="popover" data-content="Change your window size to show the rolling script down here." data-title="Script" data-placement="top" data-selector="#script">
+    </a>
+
+    
+    <section id="script">
+<h1>Modules</h1>
+<p>Modules are the way in Node that you can package code for reusability.
+
+</p>
+<p>Node provides several core modules that we have used previously. You can also use the module system for creating and using your own local modules, and you can also install and use third-party modules.
+
+</p>
+<h2>Using require()</h2>
+<p>The <code>require</code> command is the only mechanism provided of getting a reference to a module. A typilcal use of require is:
+
+</p>
+<pre><code class="lang-javascript"><span class="keyword">var</span> http = require(<span class="string">'http'</span>);</code></pre>
+<p>Here we can see several characteristics of <code>require</code>:
+
+</p>
+<p>First, it&#39;s a synchronous call. Require can do some I/O — like accessing the file system. This is designed like this so that you don&#39;t have to use nested callbacks to load all your dependencies.
+
+</p>
+<p>This means that <code>require</code> is designed to be used before Node starts the event loop and should not be used inside callbacks, with the risk of blocking the event loop.
+
+</p>
+<p>This is wrong:
+
+</p>
+<pre><code class="lang-javascript">require(<span class="string">'http'</span>).createServer(<span class="keyword">function</span>(req, res) {
+  require(<span class="string">'fs'</span>).createReadStream(<span class="string">'/path/to/my/file'</span>)
+    .pipe(res);
+});</code></pre>
+<p>This is correct:
+
+</p>
+<pre><code class="lang-javascript"><span class="keyword">var</span> fs = require(<span class="string">'fs'</span>);
+require(<span class="string">'http'</span>).createServer(<span class="keyword">function</span>(req, res) {
+  fs.createReadStream(<span class="string">'/path/to/my/file'</span>)
+    .pipe(res);
+});</code></pre>
+<p>Second, require does not change any global namespace. Instead, it returns the module object which you can assign to a local variable.
+
+
+</p>
+<h2>Requiring a Core Module</h2>
+<p>We&#39;ve seen some examples where we are requiring a Node Core module:
+
+</p>
+<pre><code class="lang-javascript"><span class="keyword">var</span> http = require(<span class="string">'http'</span>);
+<span class="keyword">var</span> fs = require(<span class="string">'fs'</span>);</code></pre>
+<p>A Node Core module is identified by a string. There are several Node core modules like <code>http</code>, <code>fs</code>, <code>net</code>, <code>tls</code>, <code>path</code>, <code>util</code> and others.
+
+
+</p>
+<h2>Creating a Local Module</h2>
+<p>You can use the Node module system to create your own module. In Node, a module is one file.Let&#39;s create a module that encapsulates some characteristics of a Circle. 
+
+</p>
+<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">Circle</span><span class="params">(x, y, r)</span> {</span>
+
+  <span class="function"><span class="keyword">function</span> <span class="title">area</span><span class="params">()</span> {</span>
+    <span class="keyword">return</span> Math.PI * Math.pow(r, <span class="number">2</span>);
+  }
+
+  <span class="function"><span class="keyword">function</span> <span class="title">circumference</span><span class="params">()</span> {</span>
+    <span class="keyword">return</span> Math.PI * <span class="number">2</span> * r;
+  }
+
+  <span class="function"><span class="keyword">function</span> <span class="title">translate</span><span class="params">(dx, dy)</span> {</span>
+    <span class="keyword">return</span> Circle(x + dx, y + dy, r);
+  }
+
+  <span class="function"><span class="keyword">function</span> <span class="title">scale</span><span class="params">(dr)</span> {</span>
+    <span class="keyword">return</span> Circle(x, y, r * dr);
+  }
+
+  <span class="keyword">return</span> {
+      x: x
+    , y: y
+    , r: r
+    , area: area
+    , circumference: circumference
+    , translate: translate
+    , scale: scale
+  };
+}
+
+module.exports = Circle;</code></pre>
+<p>Save this file into a file named &quot;circle.js&quot;.
+
+</p>
+<p>You can see here that we created a constructor function named &quot;Circle&quot; that creates a circle object with some properties. Then we are assigning that function to the <code>module.exports</code>, which is a way to express what we want the users of the current module to see. Whatever we place on the <code>module.exports</code> is what the users of our module will get when requiring it.
+
+</p>
+<h2>Requiring a Local Module</h2>
+<p>We can now use the module we have just authored. For this we place ourselves in the same directory of our module and open the Node REPL:
+
+</p>
+<pre><code class="lang-javascript">$ node
+&gt; _</code></pre>
+<p>Then we require our module:
+
+</p>
+<pre><code class="lang-javascript"><span class="keyword">var</span> Circle = require(<span class="string">'./circle.js'</span>);</code></pre>
+<p>First, notice that, unlike a core module, a local module is defined by the path to that module. In this case we&#39;re using a relative path, but the <code>require</code> function also accepts an absolute path.
+
+</p>
+<p>One thing that we can omit is the file termination, like this:
+
+</p>
+<pre><code class="lang-javascript"><span class="keyword">var</span> Circle = require(<span class="string">'./circle'</span>);</code></pre>
+<p>If we place our circle module inside a <code>lib</code> folder:
+
+</p>
+<pre><code class="lang-bash">$ mkdir lib
+$ mv circle.js lib</code></pre>
+<p>We can now require our circle module by doing:
+
+</p>
+<pre><code class="lang-javascript"><span class="keyword">var</span> Circle = require(<span class="string">'./lib/circle'</span>);</code></pre>
+<p>The path is always relative to the directory of the current module we are in.
+
+</p>
+<p>Now we can use our module:
+
+</p>
+<pre><code class="lang-javascript">&gt; <span class="keyword">var</span> Circle = require(<span class="string">'./lib/circle'</span>);
+[Function: Circle]
+&gt; <span class="keyword">var</span> c = Circle(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>)
+<span class="literal">undefined</span>
+&gt; c
+{ x: <span class="number">1</span>,
+  y: <span class="number">2</span>,
+  r: <span class="number">3</span>,
+  area: [Function: area],
+  circumference: [Function: circumference],
+  translate: [Function: translate],
+  scale: [Function: scale] }
+&gt; c.area()
+<span class="number">28.274333882308138</span>
+&gt; c.circumference()
+<span class="number">18.84955592153876</span>
+&gt; c.translate(<span class="number">10</span>, <span class="number">10</span>)
+{ x: <span class="number">11</span>,
+  y: <span class="number">12</span>,
+  r: <span class="number">3</span>,
+  area: [Function: area],
+  circumference: [Function: circumference],
+  translate: [Function: translate],
+  scale: [Function: scale] }
+&gt; c2 = c.translate(<span class="number">10</span>, <span class="number">10</span>)
+{ x: <span class="number">11</span>,
+  y: <span class="number">12</span>,
+  r: <span class="number">3</span>,
+  area: [Function: area],
+  circumference: [Function: circumference],
+  translate: [Function: translate],
+  scale: [Function: scale] }
+&gt; c3 = c2.scale(<span class="number">2</span>)
+{ x: <span class="number">11</span>,
+  y: <span class="number">12</span>,
+  r: <span class="number">6</span>,
+  area: [Function: area],
+  circumference: [Function: circumference],
+  translate: [Function: translate],
+  scale: [Function: scale] }</code></pre>
+<h2>Summary</h2>
+<p>We&#39;ve here seen how you can use <code>require</code> to load core modules.
+
+</p>
+<p>We&#39;ve also seen how to create and use your own local module.
+
+</p>
+<p>On the next episode we&#39;ll learn how you can install and use third-party modules.</p>
+
+<script>
+window.nodeTutsVideo = {"title":"Episode V - Modules","description":"","author":"Pedro Teixeira","date":"2012/11/20","video":{"url":"http://player.vimeo.com/53932142","provider":"vimeo"},"frames":[0,11,16,29,31,41,46,54,73,95,102,142,147,164,167,170,174,189,202,206,222,233,239,316,320,336,338,340,349,374,375,377,386,393,399,408,430,433,502,506,517,518],"file_name":"05-modules"};
+</script>
+    </section>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/jquery-smooth-scroll.min.js"></script>
+    <script src="js/keymaster.min.js"></script>
+    <script src="js/popcorn-complete.min.js"></script>
+    <script src="js/jquery.cook.js"></script>
+    <script src="js/nodetuts.js"></script>
+    <script>
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-19307016-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+
+    </script>
+  </body>
+</html>

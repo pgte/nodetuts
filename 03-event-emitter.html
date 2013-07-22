@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Node Tuts - Episode III - The Event Emitter Pattern</title>
+    <meta name="author" content="Pedro Teixeira">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/nodetuts.css">
+  </head>
+  <body>
+    <header>
+      <h1><a href="/">Node Tuts</a></h1>
+      <h2></h2>
+      <section id="helpers">
+        <p><a id="permalink" href="#">Permalink to current time</a></p>
+        <p><a id="openscript" href="#">Detach script window &#8663;</a></p>
+      </section>
+    </header>
+
+    <div class="alert" id="instructions" style="position: absolute">
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+      You can navigate the video and the script by using the &larr; and &rarr; cursor keys.
+    </div>
+
+    <section id="video"></section>
+    
+    <a href="#" id="popover" rel="popover" data-content="Change your window size to show the rolling script down here." data-title="Script" data-placement="top" data-selector="#script">
+    </a>
+
+    
+    <section id="script">
+<h1>The Event Emitter Pattern</h1>
+<p>The Callback pattern — which I convered on the previous episode — is useful when you are issuing granular I/O simple operations either fail or succeed.
+
+</p>
+<p>But if you have an object that is more complex, like a TCP connection, you may want to perform some actions when the connection is opened, when it is closed, when some data arrives and when there is an error.
+
+</p>
+<p>This pattern is sometimes known as the pub-sub pattern where there is the event publisher and zero or many event subscribers.
+
+</p>
+<p>The principles here are similar, but the nomenclature changes a bit: there is the event emitter part which generate events that can be listened by event listeners.
+
+</p>
+<h2>An Example first</h2>
+<p>Here is an example of a simple TCP Server:
+
+</p>
+<pre><code class="lang-javascript"><span class="keyword">var</span> net = require(<span class="string">'net'</span>);
+<span class="keyword">var</span> format = require(<span class="string">'util'</span>).format;
+
+<span class="keyword">var</span> server = net.createServer();
+
+server.on(<span class="string">'connection'</span>, <span class="keyword">function</span>(conn) {
+
+  <span class="keyword">var</span> printPrefix = <span class="string">'['</span> + conn.remoteAddress + <span class="string">':'</span> + conn.remotePort +  <span class="string">'] '</span>;
+  <span class="function"><span class="keyword">function</span> <span class="title">print</span><span class="params">()</span> {</span>
+    <span class="keyword">var</span> formatted = format.apply({}, arguments);
+    console.log(printPrefix + formatted);
+  }
+
+  print(<span class="string">'connected'</span>);
+
+  conn.on(<span class="string">'data'</span>, <span class="keyword">function</span>(data) {
+    print(<span class="string">'got some data:'</span>, data);
+  });
+
+  conn.on(<span class="string">'end'</span>, <span class="keyword">function</span>() {
+    print(<span class="string">'ended.'</span>);
+  });
+
+  conn.on(<span class="string">'close'</span>, <span class="keyword">function</span>() {
+    print(<span class="string">'closed.'</span>);
+  });
+
+  conn.on(<span class="string">'error'</span>, <span class="keyword">function</span>(err) {
+    print(<span class="string">'error:'</span>, err);
+  });
+
+  conn.setEncoding(<span class="string">'utf-8'</span>);
+
+});
+
+server.on(<span class="string">'error'</span>, console.error);
+
+server.listen(<span class="number">8080</span>);</code></pre>
+<p>Here we&#39;re using several event emitters.
+
+</p>
+<p>First, the <code>net.createServer</code> returns a <code>net.Server</code> object that is an event emitter. Besides other event types, this object emits a <code>connection</code> event every time a client connects to it.
+
+</p>
+<p>Here we&#39;re registering a listener for this event type on this object by using the <code>.on(&lt;event type&gt;, &lt;event listener&gt;)</code> method. This method binds the specified event type — <code>connection</code> in this case to the event listener — our callback function.
+
+</p>
+<p>The callback function then may get some event-type-specific data as is the case of the <code>conn</code> argument, which is of type <code>net.Socket</code>. This connection object is also an event emitter on its own, and can emit, among others, <code>data</code>, <code>close</code> and <code>end</code> events.
+
+</p>
+<p>Let&#39;s test this server now.
+
+</p>
+<h2>Event Types</h2>
+<p>The event type is represented by a string, usually lower-cased and containing only letters. Each event type passes arguments to the listeners, and these arguments are specific to the event type — some documentation should be provided about which arguments the listeners for this event type should expect.
+
+</p>
+<h2>Listener</h2>
+<p>The event listener is just a simple JavaScript function, either declared inline (like in the previous example) or declared in advance.
+
+</p>
+<p>You can either declare it inline like this:
+
+</p>
+<pre><code class="lang-javascript">server.on(<span class="string">'connection'</span>, <span class="keyword">function</span>(conn) { ...</code></pre>
+<p>or name the function:
+
+</p>
+<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">handleConnection</span><span class="params">(conn)</span> {</span>
+  <span class="comment">//...</span>
+}
+
+server.on(<span class="string">'connection'</span>, handleConnection);</code></pre>
+<p>Also, you can have more than one event listener for the same event type on the same event emitter, it&#39;s just a matter of registering it using the <code>.on()</code> method.
+
+</p>
+<h2>Once</h2>
+<p>If some events will happen only once, at most once or if you&#39;re only interested in the first instance of that event, you should use <code>.once</code> instead of <code>.on</code> like we did on the socket <code>close</code> and <code>end</code> events:
+
+</p>
+<pre><code class="lang-javascript">conn.once(<span class="string">'close'</span>, <span class="keyword">function</span>() {
+  print(<span class="string">'closed.'</span>);
+});</code></pre>
+<h2>Removing Listeners</h2>
+<p>After it is registered, you can remove an event listener from the event emitter by calling <code>.removeListener(&lt;event type&gt;, &lt;event listener&gt;)</code>. For this, you will have to name the functions like this:
+
+</p>
+<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">closeHandler</span><span class="params">()</span> {</span>
+  <span class="comment">//...</span>
+}
+
+emitter.on(<span class="string">'close'</span>, closeHandler);
+
+<span class="comment">// ...</span>
+
+emitter.removeListener(<span class="string">'close'</span>, closeHandler);</code></pre>
+<h2>The Special Case of Error</h2>
+<p>The event type is just a meaningless identifier that is used by the event emitter to dispatch events with the exception of the <code>error</code> event type.
+
+</p>
+<p>If an event of type <code>error</code> occurs and the event emitter has listeners for it, everything goes as planned.
+
+</p>
+<p>But if there are no event listeners for when an <code>error</code> event occurs, an uncaught exception is thrown into the event loop.
+
+</p>
+<p>You can still catch that error if you register for the global <code>uncaughtException</code> event type emitted by the global <code>process</code> object like this:
+
+</p>
+<pre><code class="lang-javascript">process.on(<span class="string">'uncaughtException'</span>, <span class="keyword">function</span>(err) {
+  console.error(err);
+  process.exit();
+});</code></pre>
+<p>The usage of the process uncaught exception handler is not advised for things other than logging since it&#39;s not contextualized and you may have left a series of resources unattended for — open connections, hanging requests, etc.
+
+</p>
+<p>As a rule of thumb, always listen to the <code>error</code> event.
+
+</p>
+
+<script>
+window.nodeTutsVideo = {"title":"Episode III - The Event Emitter Pattern","description":"Event Types. Listener. Listening At Most Once. Removing Listeners. The Special Case of Error.","author":"Pedro Teixeira","date":"2012/11/08","video":{"url":"http://player.vimeo.com/53071175","provider":"vimeo"},"frames":[0,23,37,49,60,76,80,87,91,93,105,123,149,200,204,270,273,283,287,289,297,312,339,343,368,369,373,386,444,448,461,473,490,495,532,550],"file_name":"03-event-emitter"};
+</script>
+    </section>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/jquery-smooth-scroll.min.js"></script>
+    <script src="js/keymaster.min.js"></script>
+    <script src="js/popcorn-complete.min.js"></script>
+    <script src="js/jquery.cook.js"></script>
+    <script src="js/nodetuts.js"></script>
+    <script>
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-19307016-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+
+    </script>
+  </body>
+</html>

@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Node Tuts - Episode VI - Third-party Modules and NPM</title>
+    <meta name="author" content="Pedro Teixeira">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/nodetuts.css">
+  </head>
+  <body>
+    <header>
+      <h1><a href="/">Node Tuts</a></h1>
+      <h2></h2>
+      <section id="helpers">
+        <p><a id="permalink" href="#">Permalink to current time</a></p>
+        <p><a id="openscript" href="#">Detach script window &#8663;</a></p>
+      </section>
+    </header>
+
+    <div class="alert" id="instructions" style="position: absolute">
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+      You can navigate the video and the script by using the &larr; and &rarr; cursor keys.
+    </div>
+
+    <section id="video"></section>
+    
+    <a href="#" id="popover" rel="popover" data-content="Change your window size to show the rolling script down here." data-title="Script" data-placement="top" data-selector="#script">
+    </a>
+
+    
+    <section id="script">
+<h1>Third-party Modules</h1>
+<p>In the last episode you learned how you can use a Node Core module and also how you can create and use your own local modules.
+
+</p>
+<p>But there is a whole world out there of open-source modules that other people have created waiting for you to use and abuse.
+
+</p>
+<h2>How Node Uses node_modules</h2>
+<p>When you require a module and you don&#39;t use a relative or absolute path, Node first searches for that string in the list of core modules like in this example:
+
+</p>
+<pre><code class="lang-javascript"><span class="keyword">var</span> http = require(<span class="string">'http'</span>);</code></pre>
+<p>But Node also looks inside a special local directory named <code>node_modules</code> — if it exists. Let&#39;s make an experiment:
+
+</p>
+<pre><code class="lang-bash">$ mkdir -p node_modules/my_module</code></pre>
+<p>Create this file inside <code>node_modules/my_module/index.js</code>:
+
+</p>
+<pre><code class="lang-javascript">module.exports = <span class="string">'MY_MODULE'</span>;</code></pre>
+<p>Then, at the root folder, create a file named <code>test.js</code>:
+
+</p>
+<pre><code class="lang-javascript"><span class="keyword">var</span> my_module = require(<span class="string">'my_module'</span>);
+console.log(my_module);</code></pre>
+<p>And execute that file:
+
+</p>
+<pre><code class="lang-bash">$ node test.js
+MY_MODULE</code></pre>
+<p>What happened here? Looks like Node picked up our module from the <code>node_modules</code> folder. To prove that let&#39;s rename that folder:
+
+</p>
+<pre><code class="lang-bash">$ mv node_modules zope_modules
+$ node test.js
+module.js:340
+
+    throw err;
+          ^
+Error: Cannot find module <span class="string">'my_module'</span>
+    at Function.Module._resolveFilename (module.js:338:15)
+    at Function.Module._load (module.js:280:25)
+    at Module.require (module.js:362:17)
+    at require (module.js:378:17)
+    at Object.&lt;anonymous&gt; (/Users/pedroteixeira/projects/publications/nodetutsv2/code/06-third-party-modules/test.js:1:79)
+    at Module._compile (module.js:449:26)
+    at Object.Module._extensions..js (module.js:467:10)
+    at Module.load (module.js:356:32)
+    at Function.Module._load (module.js:312:12)
+    at Module.runMain (module.js:492:10)</code></pre>
+<p>Let&#39;s rename it back:
+
+</p>
+<pre><code class="lang-bash">$ mv zope_modules node_modules</code></pre>
+<h2>Managing sub-dependencies</h2>
+<p>This is fine and dandy, but what if <code>my_module</code> depended on another module? Say that my_module depends on a module named <code>my_other_module</code>. Now what?
+
+</p>
+<p>Changing <code>node_modules/my_module/index.js</code> to introduce this dependency:
+
+</p>
+<pre><code class="lang-javascript"><span class="keyword">var</span> myOtherModule = require(<span class="string">'my_other_module'</span>);
+console.log(myOtherModule);
+
+module.exports = <span class="string">'MY_MODULE'</span>;</code></pre>
+<p>Let&#39;s try and execute our test script again:
+
+</p>
+<pre><code class="lang-bash">$ node test.js
+
+module.js:340
+    throw err;
+          ^
+Error: Cannot find module <span class="string">'my_other_module'</span>
+    at Function.Module._resolveFilename (module.js:338:15)
+    at Function.Module._load (module.js:280:25)
+    at Module.require (module.js:362:17)
+    at require (module.js:378:17)
+    at Object.&lt;anonymous&gt; (/Users/pedroteixeira/projects/publications/nodetutsv2/code/06-third-party-modules/node_modules/my_module/index.js:1:83)
+    at Module._compile (module.js:449:26)
+    at Object.Module._extensions..js (module.js:467:10)
+    at Module.load (module.js:356:32)
+    at Function.Module._load (module.js:312:12)
+    at Module.require (module.js:362:17)</code></pre>
+<p>That was expected. Let&#39;s try and meet that dependency by creating the file <code>node_modules/my_other_module/index.js</code>:
+
+</p>
+<pre><code class="lang-javascript">module.exports = <span class="string">'MY_OTHER_MODULE'</span>;</code></pre>
+<p>Let&#39;s now try running our test script again:
+
+</p>
+<pre><code class="lang-bash">MY_OTHER_MODULE
+MY_MODULE</code></pre>
+<p>It worked, nice!
+
+</p>
+<p>Except that my_other_module is not a direct dependency of ou test, it&#39;s a dependency of <code>my_module</code>. Let&#39;s do this right then:
+
+</p>
+<pre><code class="lang-bash">$ mkdir -p node_modules/my_module/node_modules
+$ mv node_modules/my_other_module node_modules/my_module/node_modules
+$ tree
+.
+├── node_modules
+│   └── my_module
+│       ├── index.js
+│       └── node_modules
+│           └── my_other_module
+│               └── index.js
+└── test.js</code></pre>
+<pre><code class="lang-bash">$ node test.js
+MY_OTHER_MODULE
+MY_MODULE</code></pre>
+<p>There you go!
+
+
+</p>
+<h2>Introducing NPM</h2>
+<p>NPM — which stands as Node Package Manager — is the way to search, download, install and manage third-party modules.
+
+</p>
+<h2>Using NPM To Search For a Module</h2>
+<p>NPM is a searchable repository that you can get access to using the web interface from <a href="http://npmjs.org">http://npmjs.org</a>
+
+</p>
+<p>You can also use the command-line npm to search, for instance, for CouchDB-related modyles
+
+</p>
+<pre><code class="lang-bash">$ npm search couchdb
+...</code></pre>
+<h2>Installing a Module Using NPM</h2>
+<p>Let&#39;s try installing a module from NPM:
+
+</p>
+<pre><code class="lang-bash">$ npm install request
+npm http GET https://registry.npmjs.org/request
+npm http 200 https://registry.npmjs.org/request
+npm http GET https://registry.npmjs.org/request/-/request-2.12.0.tgz
+npm http 200 https://registry.npmjs.org/request/-/request-2.12.0.tgz
+request@2.12.0 node_modules/request</code></pre>
+<p>We can see that NPM has installed the <code>request</code> module inside the <code>node_modules</code> folder:
+
+</p>
+<pre><code class="lang-bash">$ ls -la node_modules
+total 0
+drwxr-xr-x   4 pedroteixeira  staff  136 Nov 21 10:37 .
+drwxr-xr-x   4 pedroteixeira  staff  136 Nov 21 10:08 ..
+drwxr-xr-x   4 pedroteixeira  staff  136 Nov 21 10:25 my_module
+drwxr-xr-x  14 pedroteixeira  staff  476 Nov 21 10:37 request</code></pre>
+<p>Here he is. Let&#39;s try and require him from our test script:
+
+</p>
+<pre><code class="lang-javascript"><span class="keyword">var</span> request = require(<span class="string">'request'</span>);</code></pre>
+<pre><code class="lang-bash">$ node test.js
+MY_OTHER_MODULE
+MY_MODULE
+{ [Function: request]
+  initParams: [Function: initParams],
+  defaults: [Function],
+  forever: [Function],
+  get: [Circular],
+  post: [Function],
+  put: [Function],
+  head: [Function],
+  del: [Function],
+  jar: [Function],
+  cookie: [Function] }</code></pre>
+<h2>Managing Globally Installed Modules</h2>
+<p>The command <code>npm install</code> downloads and install modules inside the local <code>node_modules</code> folder, but there is a global mode in NPM that you can activate with the <code>-g</code> flag.
+
+</p>
+<p>Some modules are meant to be installed globally, like the <code>mocha</code> module:
+
+</p>
+<pre><code class="lang-bash">$ npm install -g mocha
+...
+/usr/local/bin/mocha -&gt; /usr/local/lib/node_modules/mocha/bin/mocha</code></pre>
+<p>Node modules may have executables bundled with them, and mocha is one of them. Now you should have the <code>mocha</code> executable in your path:
+
+</p>
+<pre><code class="lang-bash">$ mocha --help</code></pre>
+<p>Also, the modules that are globally installed are available when you do a <code>require</code> inside any module, but the local modules take precedence.
+
+</p>
+<p>As a rule of thumb, avoid installing a module globally.
+
+
+</p>
+<h2>Using package.json To Manage Your Dependencies</h2>
+<p>When you create a module or an application you can specify and fix the dependencies by having them in a manifest file named <code>package.json</code>:
+
+</p>
+<pre><code class="lang-javascript">{
+  <span class="string">"name"</span>: <span class="string">"test"</span>,
+  <span class="string">"version"</span>: <span class="string">"0.1.0"</span>,
+  <span class="string">"dependencies"</span>: {
+    <span class="string">"request"</span>: <span class="string">"*"</span>,
+    <span class="string">"async"</span>: <span class="string">"*"</span>
+  }
+}</code></pre>
+<p>This is specifying that our module / application depends on 2 packages: &quot;request&quot; and &quot;async&quot;, any version.
+
+</p>
+<p>You can then use NPM to update the depdencies:
+
+</p>
+<pre><code class="lang-bash">$ npm update
+...</code></pre>
+<p>Let&#39;s now inspect the local depdendency tree:
+
+</p>
+<pre><code class="lang-bash">$ npm ls
+test@0.1.0 /Users/pedroteixeira/projects/publications/nodetutsv2/code/06-third-party-modules
+├── async@0.1.22
+└─┬ request@2.12.0
+  ├─┬ form-data@0.0.4
+  │ ├── async@0.1.22
+  │ └─┬ combined-stream@0.0.3
+  │   └── delayed-stream@0.0.5
+  └── mime@1.2.7</code></pre>
+<p>You can also pin down the version by being more specific about it inside the <code>package.json</code> manifest file:
+
+</p>
+<pre><code class="lang-javascript">{
+  <span class="string">"name"</span>: <span class="string">"test"</span>,
+  <span class="string">"version"</span>: <span class="string">"0.1.0"</span>,
+  <span class="string">"dependencies"</span>: {
+    <span class="string">"request"</span>: <span class="string">"2.12.x"</span>,
+    <span class="string">"async"</span>: <span class="string">"0.1.x"</span>
+  }
+}</code></pre>
+<p>Here we&#39;re saying that we want any patch version of version 2.12 of request and any patch version of async version 0.1.
+
+</p>
+<p>You can use the <code>npm update</code> to see if there is a latest version that matches that specification and update it accordingly by running <code>npm update</code>:
+
+</p>
+<pre><code class="lang-bash">$ npm update</code></pre>
+<p>For instance, if you wanted to downgrade to version 2.11 of request you could change the dependency specification accordingly:
+
+</p>
+<pre><code class="lang-javascript">{
+  <span class="string">"name"</span>: <span class="string">"test"</span>,
+  <span class="string">"version"</span>: <span class="string">"0.1.0"</span>,
+  <span class="string">"dependencies"</span>: {
+    <span class="string">"request"</span>: <span class="string">"2.11.x"</span>,
+    <span class="string">"async"</span>: <span class="string">"0.1.x"</span>
+  }
+}</code></pre>
+<p>And then run <code>npm update</code> again:
+
+</p>
+<pre><code class="lang-bash">$ npm update</code></pre>
+<pre><code class="lang-bash">$ npm ls
+test@0.1.0 /Users/pedroteixeira/projects/publications/nodetutsv2/code/06-third-party-modules
+├── async@0.1.22
+└─┬ request@2.11.4
+  ├─┬ form-data@0.0.3
+  │ ├── async@0.1.9
+  │ └─┬ combined-stream@0.0.3
+  │   └── delayed-stream@0.0.5
+  └── mime@1.2.7</code></pre>
+<h2>Summary</h2>
+<p>In this episode we analyzed how Node uses the node_modules folder to search for packages.
+
+</p>
+<p>We used NPM to manage local and global packages.
+
+</p>
+<p>We learned how we can use the package.json manifest file to pin down our dependencies and have NPM resolve them for us.</p>
+
+<script>
+window.nodeTutsVideo = {"title":"Episode VI - Third-party Modules and NPM","description":"","author":"Pedro Teixeira","date":"2012/11/21","video":{"url":"http://player.vimeo.com/54020856","provider":"vimeo"},"frames":[0,12,17,28,31,42,46,53,72,83,96,130,135,137,142,154,167,175,179,182,202,205,220,223,225,242,264,267,268,270,281,325,329,348,351,360,366,374,390,404,407,423,434,441,443,450,465,474,479,497,503,518,542,548,567,568,571,583,614,630,634,647,662,667,675,695,712,720,726,734,735,736,747,752,755,763,769],"file_name":"06-third-party-modules"};
+</script>
+    </section>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/jquery-smooth-scroll.min.js"></script>
+    <script src="js/keymaster.min.js"></script>
+    <script src="js/popcorn-complete.min.js"></script>
+    <script src="js/jquery.cook.js"></script>
+    <script src="js/nodetuts.js"></script>
+    <script>
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-19307016-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+
+    </script>
+  </body>
+</html>

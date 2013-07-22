@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Node Tuts - Episode I - Introduction to Node</title>
+    <meta name="author" content="Pedro Teixeira">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/nodetuts.css">
+  </head>
+  <body>
+    <header>
+      <h1><a href="/">Node Tuts</a></h1>
+      <h2></h2>
+      <section id="helpers">
+        <p><a id="permalink" href="#">Permalink to current time</a></p>
+        <p><a id="openscript" href="#">Detach script window &#8663;</a></p>
+      </section>
+    </header>
+
+    <div class="alert" id="instructions" style="position: absolute">
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+      You can navigate the video and the script by using the &larr; and &rarr; cursor keys.
+    </div>
+
+    <section id="video"></section>
+    
+    <a href="#" id="popover" rel="popover" data-content="Change your window size to show the rolling script down here." data-title="Script" data-placement="top" data-selector="#script">
+    </a>
+
+    
+    <section id="script">
+<h1>Introduction to Node.js</h1>
+<h2>Installation</h2>
+<p>If you haven&#39;t already, you should install the latest stable version of Node.js in your computer.
+
+</p>
+<p>For this head out to <a href="http://nodejs.org">http://nodejs.org</a> and click on the &quot;Downloads&quot; button.
+
+</p>
+<p>Choose your platform, which will launch an install wizard.
+
+</p>
+<p>Or download the source code and install it doing:
+
+</p>
+<pre><code class="lang-bash">$ tar xvfz node-v0.8.12.tar.gz
+$ cd node-v0.8.12
+$ ./configure
+$ make &amp;&amp; make install</code></pre>
+<p>You will need some build essentials, or if you&#39;re in MacOS X, you&#39;ll need to have XCode installed.
+
+</p>
+<p>After the installation is done, open a terminal window and on the shell prompt, type:
+
+</p>
+<pre><code class="lang-bash">$ node
+&gt; _</code></pre>
+<p>You should now get the Node REPL (Read-Eval-Print-Loop), prompting you for a JavaScript line.
+
+</p>
+<p>Go ahead and type:
+
+</p>
+<pre><code class="lang-bash">&gt; console.log(<span class="string">'Hello World!'</span>)
+Hello World!</code></pre>
+<h2>A Hello World Server</h2>
+<p>Here is the cannonical hello world HTTP Server written in Node:
+
+</p>
+<pre><code class="lang-javascript"><span class="keyword">var</span> http = require(<span class="string">'http'</span>);
+
+<span class="keyword">var</span> server = http.createServer();
+
+<span class="function"><span class="keyword">function</span> <span class="title">handleRequest</span><span class="params">(req, res)</span> {</span>
+  res.writeHead(<span class="number">200</span>, { <span class="string">'content-type'</span>: <span class="string">'text/plain'</span>});
+  res.write(<span class="string">'Hello World!'</span>);
+  res.end();
+}
+
+server.on(<span class="string">'request'</span>, handleRequest);
+
+server.listen(<span class="number">8080</span>);</code></pre>
+<p>Here we&#39;re importing the built-in module named &quot;http&quot; and assigning it to a variable named <code>http</code>. Then we&#39;re creating an HTTP Server.
+
+</p>
+<p>After this we&#39;re creating a function that will be called every time a request comes in. This function writes some headers, spits out the string &quot;Hello World&quot; and then ends the request.
+
+</p>
+<p>Next, we&#39;re registering this <code>handleRequest</code> function as an event listener for the <code>request</code> event on the server. This means that every time there is a request, the server will emit the <code>request</code> event and our function, being a listener for that event type, gets called.
+
+</p>
+<p>Then, we&#39;re instructing the server to listen on port 8080 and our script ends.
+
+</p>
+<blockquote>
+<p>Test server
+
+</p>
+</blockquote>
+<p>This code is a bit verbose. I did that to be able to explain you clearly each part, but we can compact this into:
+
+</p>
+<pre><code class="lang-javascript">require(<span class="string">'http'</span>).createServer(<span class="function"><span class="keyword">function</span> <span class="title">handleRequest</span><span class="params">(req, res)</span> {</span>
+  res.writeHead(<span class="number">200</span>, { <span class="string">'content-type'</span>: <span class="string">'text/plain'</span>});
+  res.end(<span class="string">'Hello World!'</span>);
+}).listen(<span class="number">8080</span>);</code></pre>
+<p>Here we&#39;re doing the following savings:
+
+</p>
+<ul>
+<li>We&#39;re getting rid of the <code>http</code> variable, since we only use the module object to create the server.</li>
+<li>We&#39;re passing the <code>handleRequest</code> function as an argument to the <code>createServer</code> function, taking advantage of the fact that <code>createServer</code> does the listener registering for us.</li>
+<li>We&#39;re getting rid of the <code>server</code> variable, since now we&#39;re only using it to make the server listen to the 8080 port.</li>
+<li>Then, on the request handler, we were using <code>res.write()</code> and <code>res.end()</code>, but if we pass a string or a buffer to the <code>res.end()</code> function, it gets written out before ending the request.</li>
+</ul>
+<h2>Blocking Code vs. Asynchronous</h2>
+<p>Now I&#39;m going to back off a bit and try to explain some advantages of asynchronous coding and why I think it&#39;s a superior programming model.
+
+
+</p>
+<h3>Typical Blocking Code</h3>
+<p>Typically, when your code need to go out and do some I/O, like when you are performing a query in a database server, your code can look something like this:
+
+</p>
+<pre><code class="lang-javascript"><span class="keyword">var</span> response = db.query(<span class="string">'SELECT * FROM articles WHERE id = 1'</span>);
+console.log(response);</code></pre>
+<p>The call to <code>db.query</code> is behaving like if this was a local call, but it takes a very long time — in CPU scale — before it returns. If we want to make a lot of calls and the calls are independent from each other, we would be making them in series:
+
+</p>
+<pre><code class="lang-javascript"><span class="keyword">for</span>(<span class="keyword">var</span> i = <span class="number">1</span>; i &lt; <span class="number">100</span>; i ++) {
+  <span class="keyword">var</span> response = db.query(<span class="string">'SELECT * FROM articles WHERE id = ?'</span>, i);
+  console.log(response);
+}</code></pre>
+<p>To make these queries happen in parallel, we would have to spawn a series of threads, one for each query, resulting in something like this:
+
+</p>
+<pre><code class="lang-javascript"><span class="keyword">for</span>(<span class="keyword">var</span> i = <span class="number">1</span>; i &lt; <span class="number">100</span>; i ++) {
+  <span class="keyword">if</span> (process.fork()) {
+    <span class="keyword">var</span> response = db.query(<span class="string">'SELECT * FROM articles WHERE id = ?'</span>, i);
+    console.log(response);
+  }
+}</code></pre>
+<h3>The Asynchronous Alternative</h3>
+<p>In Event-driven code, when you have to do I/O, the call stack does not wait until this operation is complete. Instead, you define a function that gets invoked once the operation ends. Something like this:
+
+</p>
+<pre><code class="lang-javascript"><span class="function"><span class="keyword">function</span> <span class="title">responseReady</span><span class="params">(response)</span> {</span>
+  console.log(response);
+}
+
+db.query(<span class="string">'SELECT * FROM articles WHERE id = 1'</span>, responseReady);</code></pre>
+<p>Here our callback function will get invoked once the result is ready, producing the same output as int the blocking case.
+
+</p>
+<p>Now, what if we wanted to paralelize a bunch of queries? Here you go:
+
+</p>
+<pre><code class="lang-javascript">
+<span class="function"><span class="keyword">function</span> <span class="title">responseReady</span><span class="params">(response)</span> {</span>
+  console.log(response);
+}
+
+<span class="keyword">for</span>(<span class="keyword">var</span> i = <span class="number">1</span>; i &lt; <span class="number">100</span>; i ++) {
+  db.query(<span class="string">'SELECT * FROM articles WHERE id = ?'</span>, i, responseReady);
+}</code></pre>
+<p>Much easier and simpler than the multithreaded code, right?
+
+
+</p>
+<h2>The Event Loop</h2>
+<p>Asynchronous I/O platforms work by using an event loop. The loop can be simplified to 2 phases:
+
+</p>
+<p><img src="images/reactor-1.png" alt="Event Loop">
+
+</p>
+<p>But we can evolve this into three phases:
+
+</p>
+<ul>
+<li>Waiting for events on resources</li>
+<li>When an event happens on one resource, discover event handler</li>
+<li>Invoke event handler</li>
+<li>Repeat</li>
+</ul>
+<p>The resources here can be files and network sockets, the operating system low-level resource involved in I/O.
+
+</p>
+<h3>The pinboard analogy</h3>
+<p>The event loop is then something where you register an event handler associated with an event on a certain resource. These event handlers are, in the case of Node, JavaScript functions.
+
+</p>
+<p>The event loop is then sitting idle, listening for events on this list of resources. Once an event happens, the event loop reacts to it and tries to find an event listener for this event and resource. If it finds one, it executes it. Once that event handler returns, the event loop restarts the cycle, waiting for the next event.
+
+</p>
+<p>This system is similar to a pinboard where you register your functions and the event loop comes, selects one and invokes it when an event happens.
+
+</p>
+<p><img src="images/pinboard2.jpg" alt="Pinboard">
+
+</p>
+<h3>One Thread</h3>
+<p>The event loop is single-threaded: it execute the callback functions one at a time, waiting for it to return before the next one is invoked. This means that you expect that your callback code will never be interrupted if it doesn&#39;t do I/O or basically defers execution of code into the future.
+
+</p>
+<p>This is a known feature to browser JavaScript programmers that can do stuff like this without the fear of having a race condition:
+
+</p>
+<pre><code class="lang-javascript"><span class="keyword">var</span> clickedTimes = <span class="number">0</span>;
+$(<span class="string">'button'</span>).click(<span class="keyword">function</span>() {
+  clickedTimes ++;
+  console.log(<span class="string">'A button has been clicked '</span> + clickedTimes + <span class="string">' times'</span>);
+});</code></pre>
+<p>If the code was multi-threaded, concurrent updates to the <code>clickedTimes</code> could be happening, which could lead to errors in counting — two threads reading the same number, incrementing it and setting it, leading to a missed button click. In our case we don&#39;t have to care.</p>
+
+<script>
+window.nodeTutsVideo = {"title":"Episode I - Introduction to Node","description":"Asynchronous Programming principles. Node.js installation and first Hello World HTTP Server.","author":"Pedro Teixeira","date":"2012/10/26","video":{"url":"http://player.vimeo.com/52691590","provider":"vimeo","raw":"http://archive.org/download/NodeTuts-EpisodeI-IntroductionToNode.js/nodetutsv2_001.m4v"},"frames":[0,51,75,77,85,86,88,104,122,144,151,157,162,174,184,191,204,223,299,313,320,342,350,355,357,489,495,504,507,526,537,567,614,622,641,645,730,732,733,735,754,757,760,777,812,816,837,849,853,893,913,914,916,919,928,953,968],"file_name":"01-node_intro"};
+</script>
+    </section>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/jquery-smooth-scroll.min.js"></script>
+    <script src="js/keymaster.min.js"></script>
+    <script src="js/popcorn-complete.min.js"></script>
+    <script src="js/jquery.cook.js"></script>
+    <script src="js/nodetuts.js"></script>
+    <script>
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-19307016-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+
+    </script>
+  </body>
+</html>

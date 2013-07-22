@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Node Tuts - Episode IV - Introducing Streams</title>
+    <meta name="author" content="Pedro Teixeira">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/nodetuts.css">
+  </head>
+  <body>
+    <header>
+      <h1><a href="/">Node Tuts</a></h1>
+      <h2></h2>
+      <section id="helpers">
+        <p><a id="permalink" href="#">Permalink to current time</a></p>
+        <p><a id="openscript" href="#">Detach script window &#8663;</a></p>
+      </section>
+    </header>
+
+    <div class="alert" id="instructions" style="position: absolute">
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+      You can navigate the video and the script by using the &larr; and &rarr; cursor keys.
+    </div>
+
+    <section id="video"></section>
+    
+    <a href="#" id="popover" rel="popover" data-content="Change your window size to show the rolling script down here." data-title="Script" data-placement="top" data-selector="#script">
+    </a>
+
+    
+    <section id="script">
+<h1>Streams</h1>
+<p>Node comes with this wonderful abstraction called Streams. There are two basic types of streams: Read Streams and Write Streams.
+
+
+</p>
+<h2>Read Stream</h2>
+<p>A read stream is a source of data: it behaves like a data faucet, emitting data events. An example of a read stream is a file read stream:
+
+</p>
+<pre><code class="lang-javascript"><span class="keyword">var</span> fs = require(<span class="string">'fs'</span>);
+
+<span class="keyword">var</span> readStream = fs.createReadStream(<span class="string">'/var/log/system.log'</span>);
+
+readStream.on(<span class="string">'data'</span>, <span class="keyword">function</span>(data) {
+  console.log(<span class="string">'got some data:'</span>, data);
+});
+
+readStream.on(<span class="string">'end'</span>, <span class="keyword">function</span>() {
+  console.log(<span class="string">'ended'</span>);
+});</code></pre>
+<p>As you can see, a read stream (and a write stream) is a special case of an event emitter that emit the <code>data</code> and <code>end</code> event types.
+
+</p>
+<p>Let&#39;s run this script.
+
+</p>
+<p>As you can see, there are several data events being triggered, each with a chunk of data of the file that we&#39;re reading.
+
+
+</p>
+<h3>Setting The Encoding</h3>
+<p>Each data event gets a buffer as the data payload. If you specify an encoding, the buffers will be encoded into a string:
+
+</p>
+<pre><code class="lang-javascript">readStream.setEncoding(<span class="string">'utf-8'</span>);</code></pre>
+<p>If you run this again, you will now get UTF-8-encoded strings.
+
+</p>
+<p>There are other supported encodings like <code>base64</code>:
+
+</p>
+<pre><code class="lang-javascript">readStream.setEncoding(<span class="string">'base64'</span>);</code></pre>
+<h3>Flow Control</h3>
+<p>Just like a faucet, you can pause and resume a read stream. Let&#39;s try to just emmit one chunk of data each second:
+
+</p>
+<pre><code class="lang-javascript"><span class="keyword">var</span> fs = require(<span class="string">'fs'</span>);
+
+<span class="keyword">var</span> readStream = fs.createReadStream(<span class="string">'/var/log/system.log'</span>);
+
+readStream.pause();
+
+readStream.on(<span class="string">'data'</span>, <span class="keyword">function</span>(data) {
+  console.log(<span class="string">'got some data:'</span>, data);
+  readStream.pause();
+  setTimeout(<span class="keyword">function</span>() {
+    readStream.resume();
+  }, <span class="number">1000</span>);
+});
+
+readStream.on(<span class="string">'end'</span>, <span class="keyword">function</span>() {
+  console.log(<span class="string">'ended'</span>);
+});
+
+setTimeout(<span class="keyword">function</span>() {
+  readStream.resume();
+}, <span class="number">1000</span>);</code></pre>
+<p>Let&#39;s run this and watch the effect on the log output.
+
+
+</p>
+<h2>Write Streams</h2>
+<p>A write stream is a stream that you write data to. An example of a write stream is a file write stream:
+
+</p>
+<pre><code class="lang-javascript"><span class="keyword">var</span> fs = require(<span class="string">'fs'</span>);
+
+<span class="keyword">var</span> writeStream = fs.createWriteStream(<span class="string">'/tmp/write.txt'</span>);
+
+<span class="keyword">var</span> interval = setInterval(<span class="keyword">function</span>() {
+  writeStream.write((<span class="keyword">new</span> Date()).toString() + <span class="string">'\n'</span>);
+}, <span class="number">100</span>);
+
+setTimeout(<span class="keyword">function</span>() {
+  clearInterval(interval);
+  writeStream.end();
+}, <span class="number">5000</span>);</code></pre>
+<p>Here we&#39;re creating a file write stream and writing a string to it every 100 miliseconds. After 5 seconds we&#39;re ending the stream.
+
+</p>
+<p>Let&#39;s test this code.
+
+
+</p>
+<h3>Flow Control</h3>
+<p>Every time you write to a write stream, the data gets buffered until it is flushed to the kernel. Every time the Node buffers are depleted, you get a <code>drain</code> event. Let&#39;s see that in action by adding this line to the end of our example:
+
+</p>
+<pre><code class="lang-javascript">writeStream.on(<span class="string">'drain'</span>, <span class="keyword">function</span>() {
+  console.log(<span class="string">'drained.'</span>);
+});</code></pre>
+<p><code>writeStream.write()</code> returns a boolean that is <code>true</code> if the data was immediately flushed, and <code>false</code> if the data got buffered.
+Let&#39;s also observe this return value:
+
+</p>
+<pre><code class="lang-javascript"><span class="keyword">var</span> interval = setInterval(<span class="keyword">function</span>() {
+  <span class="keyword">var</span> flushed = writeStream.write((<span class="keyword">new</span> Date()).toString() + <span class="string">'\n'</span>);
+  console.log(<span class="string">'flushed:'</span>, flushed);
+}, <span class="number">100</span>);</code></pre>
+<p>Let&#39;s see this in action.
+
+
+</p>
+<h2>Pipe</h2>
+<p>A read stream can be piped into a write stream by using <code>stream.pipe()</code> like this:
+
+</p>
+<pre><code class="lang-javascript">readStream.pipe(writeStream);</code></pre>
+<p>Pipe also deals with back-pressure: when the write is not flushed, the read stream is paused until the write stream emits the <code>drain</code> event.
+
+</p>
+<p>Let&#39;s now see some uses of pipe. For that let&#39;s create an HTTP Server:
+
+</p>
+<pre><code class="lang-javascript"><span class="keyword">var</span> http = require(<span class="string">'http'</span>);
+<span class="keyword">var</span> fs = require(<span class="string">'fs'</span>);
+
+<span class="function"><span class="keyword">function</span> <span class="title">randomFileName</span><span class="params">()</span> {</span>
+  <span class="keyword">return</span> <span class="string">'/tmp/'</span> + Date.now() + <span class="string">'_'</span> + Math.random() * <span class="number">1000000</span> + <span class="string">'.txt'</span>;
+}
+
+http.createServer(<span class="keyword">function</span>(req, res) {
+  <span class="keyword">var</span> fileName = randomFileName();
+  console.log(<span class="string">'writing request to'</span>, fileName);
+
+  req.pipe(fs.createWriteStream(fileName));
+
+  res.writeHead(<span class="number">200</span>, {<span class="string">'content-type'</span>: <span class="string">'text/plain'</span>});
+  fs.createReadStream(__filename).pipe(res);
+}).listen(<span class="number">8080</span>);</code></pre>
+<p>Here we&#39;re creating an HTTP server listening on port 8080. On each request we get the request and response objects.
+
+</p>
+<p>The request object is a read stream which we pipe to a file write stream.
+
+</p>
+<p>We also pipe the current source file into the response — which is a write stream.
+ we&#39;re piping the request body.</p>
+
+<script>
+window.nodeTutsVideo = {"title":"Episode IV - Introducing Streams","description":"","author":"Pedro Teixeira","date":"2012/11/09","video":{"url":"http://player.vimeo.com/53098425","provider":"vimeo"},"frames":[0,9,19,23,35,38,65,76,85,89,109,120,138,151,157,161,179,253,286,289,298,304,319,367,369,392,407,416,428,440,442,450,464,517,520,524,541,549],"file_name":"04-streams"};
+</script>
+    </section>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/jquery-smooth-scroll.min.js"></script>
+    <script src="js/keymaster.min.js"></script>
+    <script src="js/popcorn-complete.min.js"></script>
+    <script src="js/jquery.cook.js"></script>
+    <script src="js/nodetuts.js"></script>
+    <script>
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-19307016-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+
+    </script>
+  </body>
+</html>
